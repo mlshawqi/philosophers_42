@@ -40,10 +40,11 @@ void    process_input(char **av, int ac, t_data *data)
         while(i < ac)
         {
                 arr[j] = ft_atoi(av[i]);
-                if(arr[j] == -1 || (arr[0] == 0 || arr[0] > 250))
+                if(arr[j] == -1 || (arr[0] == 0 || arr[0] > 200))
                 {
                         free(arr);
-                        printf("Error: arg '%s' is not a valid unsigned integer.\n", av[i]);
+                        printf("Error: arg '%s' must be between 0 and INT_MAX,", av[i]);
+                        printf(" or 1 to 200 for number_of_philosophers.\n");
                         exit(1);  
                 }
                 i++;

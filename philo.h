@@ -6,9 +6,13 @@
 # include <stdlib.h>
 # include <string.h>
 # include <unistd.h>
+# include <pthread.h>
+# include <sys/wait.h>
+
 
 
 typedef struct  s_data{
+        pthread_t *philo;
         int     number_of_philosophers;
         int     time_to_die;
         int     time_to_eat;
