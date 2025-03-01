@@ -1,15 +1,31 @@
 #include "philo.h"
 
-void    *routine()
+void    *routine(void *arg)
 {
-        int i = 1;
-        while(i <= 2)
-        {
-                printf("%d is eating\n", i);
-                printf("%d is sleeping\n", i);
-                printf("%d is thinking\n", i);
-                i++;
+        t_data *data = (t_data *)arg;
+        struct timeval start, current;
+
+        gettimeofday(&start, NULL);
+        while (1) {
+            gettimeofday(&current, NULL);
+            long seconds = current.tv_sec - start.tv_sec;
+            long microseconds = current.tv_usec - start.tv_usec;
+            long total_milliseconds = seconds * 1000 + (microseconds / 1000);
+    
+            if(total_milliseconds == 0)
+            {
+                printf("--is eating %ld\n", total_milliseconds);
+                break;
+                // printf("%d is sleeping\n", i);
+                // printf("%d is thinking\n", i);                
+            }
+            printf("Elapsed time: %ld milliseconds\r", total_milliseconds);
+            fflush(stdout); // Ensure output is printed immediately
+    
+            // Sleep for a short while to avoid busy waiting
+            usleep(100000); // Sleep for 100 milliseconds
         }
+        printf("never %d\n", data->nb_to_eat);
         return (NULL);
 }
 
