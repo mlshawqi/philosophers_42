@@ -1,9 +1,11 @@
 #include "philo.h"
 
+
 void    *routine(void *arg)
 {
         t_data *data = (t_data *)arg;
         struct timeval start, current;
+        int i = 0;
 
         gettimeofday(&start, NULL);
         while (1) {
@@ -12,56 +14,74 @@ void    *routine(void *arg)
             long microseconds = current.tv_usec - start.tv_usec;
             long total_milliseconds = seconds * 1000 + (microseconds / 1000);
     
-            if(total_milliseconds == 0)
+            if(total_milliseconds != data->time_to_die)
             {
-                printf("--is eating %ld\n", total_milliseconds);
-                break;
-                // printf("%d is sleeping\n", i);
-                // printf("%d is thinking\n", i);                
+                printf("%ld %d is eating\n", total_milliseconds, i);
+                usleep(data->time_to_eat);
+                printf("%ld %d is sleeping\n", total_milliseconds, i);
+                usleep(data->time_to_sleep);
+                printf("%ld %d is thinking\n", total_milliseconds, i);
             }
-            printf("Elapsed time: %ld milliseconds\r", total_milliseconds);
-            fflush(stdout); // Ensure output is printed immediately
+            else
+            {
+                printf("you die\n");
+                exit(1);
+            }
+        //     printf("Elapsed time: %ld milliseconds\r", total_milliseconds);
+        //     fflush(stdout); // Ensure output is printed immediately
     
             // Sleep for a short while to avoid busy waiting
-            usleep(100000); // Sleep for 100 milliseconds
+        //     usleep(100000); // Sleep for 100 milliseconds
+            i++;
         }
         printf("never %d\n", data->nb_to_eat);
         return (NULL);
 }
 
+int    to_threads(t_data *data)
+{
+        int     i;
+
+        i = 0;
+        while(i < data->number_of_philosophers)
+        {
+                data->philo[i].id = i;
+                data->philo[i].fork = 0;
+                if (pthread_create(&data->philo[i].thread, NULL, &routine, data) != 0)
+                {
+                        printf("Error creating thread %d\n", i);
+                        return (1);
+                }
+                i++;
+        }
+        i = 0;
+        while (i < data->number_of_philosophers)
+        {
+                if(pthread_join(data->philo[i].thread, NULL) != 0)
+                {
+                        printf("Error joing thread %d\n", i);
+                        return (1);       
+                }
+                i++;
+        }
+        return (0);
+}
+
 int     main(int argc, char *argv[])
 {
         t_data  data;
-        int     i;
 
         parsing(argc, argv, &data);
-        data.philo = malloc(data.number_of_philosophers * sizeof(pthread_t));
+        data.philo = malloc(data.number_of_philosophers * sizeof(t_philo));
         if(!data.philo)
         {
                 printf("Failed to allocate memory for threads.\n");
                 return (1);
         }
-        i = 0;
-        while(i < data.number_of_philosophers)
+        if(to_threads(&data) == 1)
         {
-                if (pthread_create(data.philo + i, NULL, &routine, &data) != 0)
-                {
-                        printf("Error creating thread %d\n", i);
-                        free(data.philo);
-                        return 1;
-                }
-                i++;
-        }
-        i = 0;
-        while (i < data.number_of_philosophers)
-        {
-                if(pthread_join(data.philo[i], NULL) != 0)
-                {
-                        printf("Error joing thread %d\n", i);
-                        free(data.philo);
-                        return 1;       
-                }
-                i++;
+                free(data.philo);
+                exit(1);
         }
         free(data.philo);
         // printf("number_of_philosophers %d\n", data.number_of_philosophers);

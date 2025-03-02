@@ -11,9 +11,17 @@
 #include <sys/time.h>
 
 
+typedef struct  s_philo{
+        pthread_t       thread;
+        int     fork;
+        int     lst_t_eat;
+        int     id;
+
+}               t_philo;
+
 
 typedef struct  s_data{
-        pthread_t *philo;
+        t_philo *philo;
         int     number_of_philosophers;
         int     time_to_die;
         int     time_to_eat;
