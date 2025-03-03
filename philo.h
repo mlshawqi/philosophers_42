@@ -14,15 +14,19 @@
 typedef struct  s_philo{
         pthread_t       thread;
         int     fork;
-        size_t     lst_t_eat;
+        long     lst_t_eat;
         int     id;
-
+        pthread_mutex_t fork_lock;
+        int     number_of_philosophers;
+        long     time_to_die;
+        int     time_to_eat;
+        int     time_to_sleep;
+        int     nb_to_eat;
 }               t_philo;
 
 
 typedef struct  s_data{
         t_philo *philo;
-        pthread_mutex_t fork_lock;
         int     number_of_philosophers;
         size_t     time_to_die;
         int     time_to_eat;

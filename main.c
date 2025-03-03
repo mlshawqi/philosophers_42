@@ -1,50 +1,54 @@
 #include "philo.h"
 
-size_t	get_current_time(void)
-{
-	struct timeval	time;
 
-	if (gettimeofday(&time, NULL) == -1)
-		write(2, "gettimeofday() error\n", 22);
-	return (time.tv_sec * 1000 + time.tv_usec / 1000);
+long	get_current_time(void)
+{
+        struct timeval start, current;
+        gettimeofday(&start, NULL);
+        gettimeofday(&current, NULL);
+        long seconds = current.tv_sec - start.tv_sec;
+        long microseconds = current.tv_usec - start.tv_usec;
+        long total_milliseconds = seconds * 1000 + (microseconds / 1000);
+        return (total_milliseconds);
+
 }
 
-void    to_eat(t_data *data)
+void    to_eat(t_philo *philo)
 {
-        if(data->philo[data->philo->id].lst_t_eat + get_current_time() == data->time_to_die)
+        if(philo[philo->id].lst_t_eat + get_current_time() == philo->time_to_die)
         {
-                printf("%ld %d died", get_current_time(), data->philo->id);
-                free(data->philo);
+                printf("%ld %d died", get_current_time(), philo->id);
+                free(philo);
                 exit(0);
         }
-        else if(data->philo->id == data->number_of_philosophers - 1 
-                && (data->philo[data->philo->id].fork == 0 && data->philo[0].fork == 0))
+        else if(philo->id == philo->number_of_philosophers - 1 
+                && (philo[philo->id].fork == 0 && philo[0].fork == 0))
         {
-                pthread_mutex_lock(&data->fork_lock);
-                data->philo[data->philo->id].fork = 1;
-                data->philo[0].fork = 1;
-                printf("%ld %d has taken a fork\n", get_current_time(), data->philo->id);
-                printf("%ld %d has taken a fork\n", get_current_time(), data->philo->id);
-                printf("%ld %d is eating\n", get_current_time(), data->philo->id);
-                usleep(data->time_to_eat);
-                data->philo[data->philo->id].fork = 0;
-                data->philo[0].fork = 0;
-                data->philo[data->philo->id].lst_t_eat = get_current_time();
-                pthread_mutex_unlock(&data->fork_lock);               
+                pthread_mutex_lock(&philo->fork_lock);
+                philo[philo->id].fork = 1;
+                philo[0].fork = 1;
+                printf("%ld %d has taken a fork\n", get_current_time(), philo->id);
+                printf("%ld %d has taken a fork\n", get_current_time(), philo->id);
+                printf("%ld %d is eating\n", get_current_time(), philo->id);
+                usleep(philo->time_to_eat);
+                philo[philo->id].fork = 0;
+                philo[0].fork = 0;
+                philo[philo->id].lst_t_eat = get_current_time();
+                pthread_mutex_unlock(&philo->fork_lock);               
         }
-        else if(data->philo[data->philo->id].fork == 0 && data->philo[data->philo->id + 1].fork == 0)
+        else if(philo[philo->id].fork == 0 && philo[philo->id + 1].fork == 0)
         {
-                pthread_mutex_lock(&data->fork_lock);
-                data->philo[data->philo->id].fork = 1;
-                data->philo[data->philo->id + 1].fork = 1;
-                printf("%ld %d has taken a fork\n", get_current_time(), data->philo->id);
-                printf("%ld %d has taken a fork\n", get_current_time(), data->philo->id);
-                printf("%ld %d is eating\n", get_current_time(), data->philo->id);
-                usleep(data->time_to_eat);
-                data->philo[data->philo->id].fork = 0;
-                data->philo[0].fork = 0;
-                data->philo[data->philo->id].lst_t_eat = get_current_time();
-                pthread_mutex_unlock(&data->fork_lock);
+                pthread_mutex_lock(&philo->fork_lock);
+                philo[philo->id].fork = 1;
+                philo[philo->id + 1].fork = 1;
+                printf("%ld %d has taken a fork\n", get_current_time(), philo->id);
+                printf("%ld %d has taken a fork\n", get_current_time(), philo->id);
+                printf("%ld %d is eating\n", get_current_time(), philo->id);
+                usleep(philo->time_to_eat);
+                philo[philo->id].fork = 0;
+                philo[0].fork = 0;
+                philo[philo->id].lst_t_eat = get_current_time();
+                pthread_mutex_unlock(&philo->fork_lock);
         }
         // else
         //         to_eat(data, nbr);
@@ -53,13 +57,17 @@ void    to_eat(t_data *data)
 
 void    *routine(void *arg)
 {
-        t_data *data = (t_data *)arg;
+        t_philo *philo = (t_philo *)arg;
         
-        printf("%d \n", data->philo[3].id);
-        // to_eat(data);
-        // printf("%ld %d is sleeping\n", get_current_time(), data->philo->id);
-        // usleep(data->time_to_sleep);
-        // printf("%ld %d is thinking\n", get_current_time(), data->philo->id);
+        // printf("%d \n", data->id);
+        // while(1)
+        // {
+                
+                to_eat(philo);
+                printf("%ld %d is sleeping\n", get_current_time(), philo->id);
+                usleep(philo->time_to_sleep);
+                printf("%ld %d is thinking\n", get_current_time(), philo->id);
+        // }
         return (NULL);
 }
 
@@ -70,10 +78,15 @@ int    to_threads(t_data *data)
         i = 0;
         while(i < data->number_of_philosophers)
         {
-                data->philo[i].id = i;
+                data->philo[i].id = i + 1;
                 data->philo[i].fork = 0;
                 data->philo[i].lst_t_eat = 0;
-                if (pthread_create(&data->philo[i].thread, NULL, &routine, data) != 0)
+                data->philo[i].number_of_philosophers = data->number_of_philosophers;
+                data->philo[i].time_to_die = data->time_to_die;
+                data->philo[i].time_to_eat = data->time_to_eat;
+                data->philo[i].time_to_sleep = data->time_to_sleep;
+                pthread_mutex_init(&data->philo[i].fork_lock, NULL); 
+                if (pthread_create(&data->philo[i].thread, NULL, &routine, &data->philo[i]) != 0)
                 {
                         printf("Error creating thread %d\n", i);
                         return (1);
@@ -104,13 +117,13 @@ int     main(int argc, char *argv[])
                 printf("Failed to allocate memory for threads.\n");
                 return (1);
         }
-        pthread_mutex_init(&data.fork_lock, NULL);
+        
         if(to_threads(&data) == 1)
         {
                 free(data.philo);
                 exit(1);
         }
-        pthread_mutex_destroy(&data.fork_lock);
+        // pthread_mutex_destroy(&data.fork_lock);
         free(data.philo);
         // printf("number_of_philosophers %d\n", data.number_of_philosophers);
         // printf("time_to_die %d\n", data.time_to_die);
