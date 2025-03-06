@@ -13,20 +13,26 @@
 
 typedef struct  s_philo{
         pthread_t       thread;
-        int     fork;
-        long     lst_t_eat;
+        size_t     lst_t_eat;
         int     id;
-        pthread_mutex_t fork_lock;
+        pthread_mutex_t *r_fork_lock;
+        pthread_mutex_t *l_fork_lock;
+        pthread_mutex_t *dead_lock;
         int     number_of_philosophers;
-        long     time_to_die;
+        size_t     time_to_die;
         int     time_to_eat;
         int     time_to_sleep;
         int     nb_to_eat;
+        int     dead_flag;
+        int     is_eat;
+        int     is_sleep;
 }               t_philo;
 
 
 typedef struct  s_data{
         t_philo *philo;
+        pthread_mutex_t *mutex_array;
+        pthread_mutex_t d_lock;
         int     number_of_philosophers;
         size_t     time_to_die;
         int     time_to_eat;
@@ -39,5 +45,10 @@ void    process_input(char **av, int ac, t_data *data);
 void    ft_initialize(int *arr, int ac, t_data *data);
 int     ft_isdigit(char *str);
 int     ft_atoi(char *str);
+
+void    ft_to_mutex(t_data *data);
+size_t	get_current_time(void);
+int	ft_usleep(size_t milliseconds);
+
 
 #endif
