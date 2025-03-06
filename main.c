@@ -65,75 +65,6 @@
 
 
 
-void    *routine(void *arg)
-{
-        t_philo *philo = (t_philo *)arg;
-        int i = 0;
-
-        while(i < philo->nb_to_eat && ((get_current_time() - philo->lst_t_eat) < philo->time_to_die))
-        {       
-                if((get_current_time() - philo->lst_t_eat) >= philo->time_to_die)
-                {
-                        pthread_mutex_lock(philo->dead_lock);
-                        printf("%ld %d died\n", get_current_time(), philo->id);
-                        pthread_mutex_unlock(philo->dead_lock);
-                        pthread_exit(NULL);
-                        exit(0);   
-                }
-                pthread_mutex_lock(philo->r_fork_lock);
-                printf("%zu %d has taken a fork\n", get_current_time(), philo->id);
-                pthread_mutex_lock(philo->l_fork_lock);
-                printf("%zu %d has taken a fork\n", get_current_time(), philo->id);
-                printf("%zu %d --------------------is eating\n", get_current_time(), philo->id);
-                ft_usleep(philo->time_to_eat);
-                philo->lst_t_eat = get_current_time();
-                pthread_mutex_unlock(philo->r_fork_lock);
-                pthread_mutex_unlock(philo->l_fork_lock);
-                ft_usleep(philo->time_to_sleep);
-                printf("%zu %d is sleeping\n", get_current_time(), philo->id);
-                printf("%zu %d is thinking\n", get_current_time(), philo->id);
-                i++;
-        }
-        return (NULL);
-}
-
-int    to_threads(t_data *data)
-{
-        int     i;
-
-        i = 0;
-        while(i < data->number_of_philosophers)
-        {
-                data->philo[i].id = i + 1;
-                data->philo[i].lst_t_eat = 0;
-                data->philo[i].number_of_philosophers = data->number_of_philosophers;
-                data->philo[i].time_to_die = data->time_to_die;
-                data->philo[i].time_to_eat = data->time_to_eat;
-                data->philo[i].time_to_sleep = data->time_to_sleep;
-                data->philo[i].nb_to_eat = data->nb_to_eat;
-                data->philo[i].dead_flag = 0;
-                pthread_mutex_init(data->philo[i].r_fork_lock, NULL); 
-                pthread_mutex_init(data->philo[i].l_fork_lock, NULL);
-                pthread_mutex_init(data->philo[i].dead_lock, NULL);
-                if (pthread_create(&data->philo[i].thread, NULL, &routine, &data->philo[i]) != 0)
-                {
-                        printf("Error creating thread %d\n", i);
-                        return (1);
-                }
-                i++;
-        }
-        i = 0;
-        while (i < data->number_of_philosophers)
-        {
-                if(pthread_join(data->philo[i].thread, NULL) != 0)
-                {
-                        printf("Error joing thread %d\n", i);
-                        return (1);       
-                }
-                i++;
-        }
-        return (0);
-}
 
 int     main(int argc, char *argv[])
 {
@@ -147,6 +78,7 @@ int     main(int argc, char *argv[])
                 printf("Failed to allocate memory for threads.\n");
                 return (1);
         }
+        data.flag_die = 0;
         ft_to_mutex(&data);
         if(to_threads(&data) == 1)
         {
@@ -154,6 +86,10 @@ int     main(int argc, char *argv[])
                 exit(1);
         }
         // pthread_mutex_destroy(&data.fork_lock);
+        if(data.flag_die == 1)
+        {
+                manage_exit(data.last_eat_array, data.number_of_philosophers);
+        }
         free(data.philo);
         return (0);
 

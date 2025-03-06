@@ -43,7 +43,14 @@ void    ft_to_mutex(t_data *data)
                 printf("Failed to allocate memory for array of threads.\n");
                 exit (0);
         }
-        memset(data->mutex_array, 0, data->number_of_philosophers);
+        data->last_eat_array= malloc(data->number_of_philosophers * sizeof(size_t));
+        if(!data->last_eat_array)
+        {
+                printf("Failed to allocate memory for array of last time eat.\n");
+                exit (0);
+        }
+        memset(data->last_eat_array, 0, data->number_of_philosophers);
+        // memset(data->mutex_array, 0, data->number_of_philosophers);
         i = 0;
         while(i < data->number_of_philosophers)
         {
@@ -53,7 +60,60 @@ void    ft_to_mutex(t_data *data)
                 data->philo[i].r_fork_lock = &data->mutex_array[i];
                 data->philo[j].l_fork_lock = &data->mutex_array[i];
                 data->philo[i].dead_lock = &data->d_lock;
+                data->philo[i].lst_t_eat = &data->last_eat_array[i];
                 i++;
         }
 
+}
+
+int    to_threads(t_data *data)
+{
+        int     i;
+
+        i = 0;
+        while(i < data->number_of_philosophers)
+        {
+                data->philo[i].id = i + 1;
+                data->philo[i].number_of_philosophers = data->number_of_philosophers;
+                data->philo[i].time_to_die = data->time_to_die;
+                data->philo[i].time_to_eat = data->time_to_eat;
+                data->philo[i].time_to_sleep = data->time_to_sleep;
+                data->philo[i].nb_to_eat = data->nb_to_eat;
+                data->philo[i].dead_flag = &data->flag_die;
+                data->philo[i].array_l_time = &data->last_eat_array;
+                pthread_mutex_init(data->philo[i].r_fork_lock, NULL); 
+                pthread_mutex_init(data->philo[i].l_fork_lock, NULL);
+                pthread_mutex_init(data->philo[i].dead_lock, NULL);
+                if (pthread_create(&data->philo[i].thread, NULL, &routine, &data->philo[i]) != 0)
+                {
+                        printf("Error creating thread %d\n", i);
+                        return (1);
+                }
+                i++;
+        }
+        i = 0;
+        while (i < data->number_of_philosophers)
+        {
+                if(pthread_join(data->philo[i].thread, NULL) != 0)
+                {
+                        printf("Error joing thread %d\n", i);
+                        return (1);       
+                }
+                i++;
+        }
+        i = 0;
+        if(data->flag_die == 1)
+        {
+                free(data->mutex_array);
+                free(data->last_eat_array);
+                while(i < data->number_of_philosophers)
+                {
+                        pthread_mutex_destroy(data->philo[i].r_fork_lock);
+                        pthread_mutex_destroy(data->philo[i].l_fork_lock);
+                        pthread_mutex_destroy(data->philo[i].dead_lock);
+                        i++;
+                }
+                return (0);
+        }
+        return (0);
 }
