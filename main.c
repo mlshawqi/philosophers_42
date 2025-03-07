@@ -97,7 +97,9 @@ int     main(int argc, char *argv[])
 
 
 
-
+/*
+        still problems in die and fix time. fix the algo.
+*/
 
 
 
