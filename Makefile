@@ -1,4 +1,4 @@
-SRCS =  main.c parsing.c ft_atoi.c ft_mutex.c routine.c
+SRCS =  main.c parsing.c ft_atoi.c ft_mutex.c routine.c parsing2.c clean.c
 
 OBJS = $(SRCS:.c=.o)
 

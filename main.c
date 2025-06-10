@@ -70,27 +70,23 @@ int     main(int argc, char *argv[])
 {
         t_data  data;
 
-        parsing(argc, argv, &data);
-
-        data.philo = malloc(data.number_of_philosophers * sizeof(t_philo));
-        if(!data.philo)
+        if(parsing(argc, argv, &data) == 1)
         {
-                printf("Failed to allocate memory for threads.\n");
+                cleanup_data(&data);
                 return (1);
         }
-        data.flag_die = 0;
-        ft_to_mutex(&data);
-        if(to_threads(&data) == 1)
-        {
-                free(data.philo);
-                exit(1);
-        }
-        // pthread_mutex_destroy(&data.fork_lock);
-        if(data.flag_die == 1)
-        {
-                manage_exit(data.last_eat_array, data.number_of_philosophers);
-        }
-        free(data.philo);
+        // ft_to_mutex(&data);
+        // if(to_threads(&data) == 1)
+        // {
+        //         free(data.philo);
+        //         exit(1);
+        // }
+        // // pthread_mutex_destroy(&data.fork_lock);
+        // if(data.flag_die == 1)
+        // {
+        //         manage_exit(data.last_eat_array, data.number_of_philosophers);
+        // }
+        // free(data.philo);
         return (0);
 
 }

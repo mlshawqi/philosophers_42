@@ -15,17 +15,26 @@ int     ft_isdigit(char *str)
         return (0);
 }
 
-void    ft_initialize(int *arr, int ac, t_data *data)
+int    ft_initialize(int *arr, int ac, t_data *data)
 {
+        data->philo = NULL;
         data->number_of_philosophers = arr[0];
         data->time_to_die = arr[1];
         data->time_to_eat = arr[2];
         data->time_to_sleep = arr[3];
+        data->flag_die = false;
+        data->is_stoop = false;
         if(ac == 6)
+        {
+                data->is_stoop = true;
                 data->nb_to_eat = arr[4];
+        }
+        if(init_data(data) == 1)
+                return (1);
+        return (0);
 }
 
-void    process_input(char **av, int ac, t_data *data)
+int    process_input(char **av, int ac, t_data *data)
 {
         int     i;
         int     j;
@@ -34,7 +43,7 @@ void    process_input(char **av, int ac, t_data *data)
         arr = NULL;
         arr = malloc(sizeof(int) * ac);
         if(!arr)
-                exit(1);
+                return (1);
         i = 1;
         j = 0;
         while(i < ac)
@@ -45,16 +54,21 @@ void    process_input(char **av, int ac, t_data *data)
                         free(arr);
                         printf("Error: arg '%s' must be between 0 and INT_MAX,", av[i]);
                         printf(" or 1 to 200 for number_of_philosophers.\n");
-                        exit(1);  
+                        return (1);  
                 }
                 i++;
                 j++;
         }
-        ft_initialize(arr, ac, data);
+        if(ft_initialize(arr, ac, data) == 1)
+        {
+                free(arr);
+                return (1);
+        }
         free(arr);
+        return (0);
 }
 
-void    parsing(int ac, char *av[], t_data *data)
+int    parsing(int ac, char *av[], t_data *data)
 {
         int     i;
 
@@ -68,16 +82,17 @@ void    parsing(int ac, char *av[], t_data *data)
                         else
                         {
                                 printf("Error: arg '%s' is not a valid unsigned integer.\n", av[i]);
-                                exit(1);
+                                return (1);
                         }
                 }
-                process_input(av, ac, data);
+                if(process_input(av, ac, data) == 1)
+                        return (1);
         }
         else
         {
-                printf("Usage: ./philo number_of_philosophers time_to_die");
-                printf("time_to_eat time_to_sleep");
-                printf("[number_of_times_each_philosopher_must_eat]\n");
-                exit(1);
+                return (print_error("Usage: ./philo number_of_philosophers time_to_die "
+                "time_to_eat time_to_sleep "
+                "[number_of_times_each_philosopher_must_eat]", false));
         }
+        return (0);
 }
