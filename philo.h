@@ -11,16 +11,19 @@
 # include <sys/wait.h>
 #include <sys/time.h>
 
-
+typedef struct  s_philo t_philo;
+typedef struct  s_data  t_data;
 
 
 typedef struct  s_philo{
         pthread_t       thread;
-        pthread_mutex_t         r_fork_lock;
-        pthread_mutex_t         l_fork_lock;
+        pthread_mutex_t         *right_fork;
+        pthread_mutex_t         *left_fork;
         int                     id;
+        size_t                  last_eat;
         struct s_philo  *next;
         struct s_philo  *prev;
+        t_data          *p_data;
 }               t_philo;
 
 typedef struct  s_data{
@@ -31,8 +34,7 @@ typedef struct  s_data{
         int             time_to_eat;
         int             time_to_sleep;
         int             nb_to_eat;
-        bool            flag_die;
-        bool            is_stoop;
+        bool             dead_flag;
 }       t_data;
 
 
@@ -77,7 +79,7 @@ typedef struct  s_data{
 
 int    parsing(int ac, char *av[], t_data *data);
 int    process_input(char **av, int ac, t_data *data);
-int    ft_initialize(int *arr, int ac, t_data *data);
+int    ft_initialize(char **av, int ac, t_data *data);
 int     ft_isdigit(char *str);
 int     ft_atoi(char *str);
 
@@ -92,11 +94,12 @@ void    manage_exit(size_t *array, int len);
 int     check_dead(t_philo *philo);
 int    init_data(t_data *data);
 int	link_node(t_philo **head, t_philo *new_node);
-t_philo         *creat_node(int i);
+t_philo         *creat_node(t_data *data, int i);
 void    cleanup_data(t_data *data);
 void	clean_philo(t_philo **list);
 int	print_error(char *context, bool flag);
 size_t	ft_strlen(char *s);
-
+void	init_fork(t_data *data);
+int    simulation(t_data *data);
 
 #endif

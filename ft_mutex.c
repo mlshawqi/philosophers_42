@@ -1,56 +1,111 @@
 #include "philo.h"
 
+int     creat_threads(t_data *data)
+{
+        t_philo         *tmp;
+
+        tmp = data->philo;
+        while(tmp)
+        {
+                pthread_mutex_init(tmp->right_fork, NULL); 
+                pthread_mutex_init(tmp->left_fork, NULL);
+                if (pthread_create(&tmp->thread, NULL, &routine, &tmp) != 0)
+                {
+                        printf("Error creating thread %d\n", tmp->id);
+                        return (1);
+                }
+                tmp = tmp->next;
+        }
+        return (0);      
+}
+
+int     join_threads(t_data *data)
+{
+        t_philo         *tmp;
+
+        tmp = data->philo;
+        while(tmp)
+        {
+                if (pthread_join(tmp->thread, NULL) != 0)
+                {
+                        printf("Error joing thread %d\n", tmp->id);
+                        return (1);
+                }
+                tmp = tmp->next;
+        }
+        return (0); 
+}
+
+int    simulation(t_data *data)
+{
+        if(creat_threads(data) == 1)
+                return (1);
+        if(join_threads(data) == 1)
+                return (1);
+        // if(data->dead_flag)
+        // {
+        //         free(data->mutex_array);
+        //         while(i < data->number_of_philosophers)
+        //         {
+        //                 pthread_mutex_destroy(data->philo[i].r_fork_lock);
+        //                 pthread_mutex_destroy(data->philo[i].l_fork_lock);
+        //                 pthread_mutex_destroy(data->philo[i].dead_lock);
+        //                 i++;
+        //         }
+        //         return (0);
+        // }
+        return (0);
+}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// size_t	get_current_time(void)
-// {
-//         static struct timeval start_time;  // Will retain its value between calls
-//         static int initialized = 0;         // To check if the timer is initialized
+size_t	get_current_time(void)
+{
+        static struct timeval start_time;  // Will retain its value between calls
+        static int initialized = 0;         // To check if the timer is initialized
     
-//         if (!initialized) {
-//                 gettimeofday(&start_time, NULL); // Initialize the start time on the first call
-//             initialized = 1;
-//         }
+        if (!initialized) {
+                gettimeofday(&start_time, NULL); // Initialize the start time on the first call
+            initialized = 1;
+        }
     
-//         struct timeval current_time;
-//         gettimeofday(&current_time, NULL);
+        struct timeval current_time;
+        gettimeofday(&current_time, NULL);
     
-//         // Calculate the difference in seconds and microseconds
-//         long seconds = current_time.tv_sec - start_time.tv_sec;
-//         long microseconds = current_time.tv_usec - start_time.tv_usec;
+        // Calculate the difference in seconds and microseconds
+        long seconds = current_time.tv_sec - start_time.tv_sec;
+        long microseconds = current_time.tv_usec - start_time.tv_usec;
     
-//         // Convert total elapsed time to milliseconds
-//         return (seconds * 1000) + (microseconds / 1000);
-// }
+        // Convert total elapsed time to milliseconds
+        return (seconds * 1000) + (microseconds / 1000);
+}
 
-// int	ft_usleep(size_t milliseconds)
-// {
-//         size_t	start;
+int	ft_usleep(size_t milliseconds)
+{
+        size_t	start;
 
-//         start = get_current_time();
-//         while ((get_current_time() - start) < milliseconds)
-//                 usleep(500);
-//         return (0);
-// }
+        start = get_current_time();
+        while ((get_current_time() - start) < milliseconds)
+                usleep(500);
+        return (0);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
 
 // void    ft_to_mutex(t_data *data)
 // {

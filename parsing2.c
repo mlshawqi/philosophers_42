@@ -1,6 +1,6 @@
 #include "philo.h"
 
-t_philo         *creat_node(int i)
+t_philo         *creat_node(t_data *data, int i)
 {
 	t_philo         *node;
 
@@ -8,6 +8,8 @@ t_philo         *creat_node(int i)
 	if (!node)
 		return (NULL);
         node->id = i;
+	node->p_data = data;
+	node->last_eat = 0;
 	node->next = NULL;
 	node->prev = NULL;
 	return (node);
@@ -32,6 +34,25 @@ int	link_node(t_philo **head, t_philo *new_node)
 	return (0);
 }
 
+void	init_fork(t_data *data)
+{
+	int	i;
+	t_philo		*tmp;
+
+	i = 0;
+	tmp = data->philo;
+	while(i < data->number_of_philosophers)
+	{
+		if(!tmp->prev)
+			tmp->left_fork = &data->mutex_array[data->number_of_philosophers - 1];
+		tmp->right_fork = &data->mutex_array[i];
+		if(tmp->next)
+			tmp->next->left_fork = &data->mutex_array[i];
+		i++;
+		tmp = tmp->next;
+	}
+}
+
 int    init_data(t_data *data)
 {
         int     i;
@@ -42,10 +63,11 @@ int    init_data(t_data *data)
         i = 0;
         while(i < data->number_of_philosophers)
         {
-                if(link_node(&data->philo, creat_node(i + 1)) == 1)
+                if(link_node(&data->philo, creat_node(data, i + 1)) == 1)
 			return (1);
                 i++;
         }
+	init_fork(data);
 	return (0);
 }
 

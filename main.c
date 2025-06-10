@@ -75,12 +75,12 @@ int     main(int argc, char *argv[])
                 cleanup_data(&data);
                 return (1);
         }
+        if(simulation(&data) == 1)
+        {
+                free(data.philo);
+                exit(1);
+        }
         // ft_to_mutex(&data);
-        // if(to_threads(&data) == 1)
-        // {
-        //         free(data.philo);
-        //         exit(1);
-        // }
         // // pthread_mutex_destroy(&data.fork_lock);
         // if(data.flag_die == 1)
         // {
