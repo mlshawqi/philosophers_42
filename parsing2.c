@@ -9,7 +9,8 @@ t_philo         *creat_node(t_data *data, int i)
 		return (NULL);
         node->id = i;
 	node->p_data = data;
-	node->last_eat = 0;
+	node->last_meal = 0;
+	node->nb_eat = 0;
 	node->next = NULL;
 	node->prev = NULL;
 	return (node);

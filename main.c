@@ -80,11 +80,13 @@ int     main(int argc, char *argv[])
                 free(data.philo);
                 exit(1);
         }
+        
+        
         // ft_to_mutex(&data);
         // // pthread_mutex_destroy(&data.fork_lock);
-        // if(data.flag_die == 1)
+        // if(data.dead_flag)
         // {
-        //         manage_exit(data.last_eat_array, data.number_of_philosophers);
+        //         printf("someone died\n");
         // }
         // free(data.philo);
         return (0);

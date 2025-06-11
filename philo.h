@@ -20,7 +20,8 @@ typedef struct  s_philo{
         pthread_mutex_t         *right_fork;
         pthread_mutex_t         *left_fork;
         int                     id;
-        size_t                  last_eat;
+        size_t                  last_meal;
+        int                     nb_eat;
         struct s_philo  *next;
         struct s_philo  *prev;
         t_data          *p_data;
@@ -85,7 +86,7 @@ int     ft_atoi(char *str);
 
 void    ft_to_mutex(t_data *data);
 size_t	get_current_time(void);
-int	ft_usleep(size_t milliseconds);
+int	ft_usleep(size_t wait_time);
 
 int    to_threads(t_data *data);
 size_t    manage_l_time(size_t **array, int len);

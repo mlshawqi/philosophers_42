@@ -9,7 +9,7 @@ int     creat_threads(t_data *data)
         {
                 pthread_mutex_init(tmp->right_fork, NULL); 
                 pthread_mutex_init(tmp->left_fork, NULL);
-                if (pthread_create(&tmp->thread, NULL, &routine, &tmp) != 0)
+                if (pthread_create(&tmp->thread, NULL, &routine, tmp) != 0)
                 {
                         printf("Error creating thread %d\n", tmp->id);
                         return (1);
@@ -58,54 +58,56 @@ int    simulation(t_data *data)
 }
 
 
-size_t	get_current_time(void)
+size_t  get_current_time(void)
 {
-        static struct timeval start_time;  // Will retain its value between calls
-        static int initialized = 0;         // To check if the timer is initialized
-    
-        if (!initialized) {
-                gettimeofday(&start_time, NULL); // Initialize the start time on the first call
-            initialized = 1;
+        static struct timeval   start_time;
+        static int              start;
+        struct timeval          current_time;
+        long                    seconds;
+        long                    microseconds;
+
+        if(!start)
+        {
+                if (gettimeofday(&start_time, NULL) == -1)
+		        return (print_error("gettimeofday() error\n", NULL));
+                start = 1;
         }
-    
-        struct timeval current_time;
-        gettimeofday(&current_time, NULL);
-    
-        // Calculate the difference in seconds and microseconds
-        long seconds = current_time.tv_sec - start_time.tv_sec;
-        long microseconds = current_time.tv_usec - start_time.tv_usec;
-    
-        // Convert total elapsed time to milliseconds
-        return (seconds * 1000) + (microseconds / 1000);
+        if (gettimeofday(&current_time, NULL) == -1)
+		        return (print_error("gettimeofday() error\n", NULL));
+        seconds = current_time.tv_sec - start_time.tv_sec;
+        microseconds = current_time.tv_usec - start_time.tv_usec;
+        return ((seconds * 1000) + (microseconds / 1000));
 }
 
-int	ft_usleep(size_t milliseconds)
-{
-        size_t	start;
 
-        start = get_current_time();
-        while ((get_current_time() - start) < milliseconds)
+int	ft_usleep(size_t wait_time)
+{
+        size_t	start_time;
+
+        start_time = get_current_time();
+        while ((get_current_time() - start_time) < wait_time)
                 usleep(500);
         return (0);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // void    ft_to_mutex(t_data *data)
 // {

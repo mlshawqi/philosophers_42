@@ -34,6 +34,7 @@ int    ft_initialize(char **av, int ac, t_data *data)
         data->time_to_eat = ft_atoi(av[3]);
         data->time_to_sleep = ft_atoi(av[4]);
         data->dead_flag = false;
+        data->nb_to_eat = 0;
         if(ac == 6)
         {
                 data->nb_to_eat = ft_atoi(av[5]);

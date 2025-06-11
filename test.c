@@ -16,31 +16,32 @@
 #include <sys/time.h>
 #include <unistd.h> // For usleep
 
+
+unsigned long  get_current_time(void)
+{
+        static struct timeval   start_time;
+        static int              start;
+        struct timeval          current_time;
+        long                    seconds;
+        long                    microseconds;
+
+        if(!start)
+        {
+                gettimeofday(&start_time, NULL);
+                start = 1;
+        }
+        gettimeofday(&current_time, NULL);
+        seconds = current_time.tv_sec - start_time.tv_sec;
+        microseconds = current_time.tv_usec - start_time.tv_usec;
+        return ((seconds * 1000) + (microseconds / 1000));
+}
+
+
 int main() {
-    struct timeval start, current;
-
-    // Get the current time at the start
-    gettimeofday(&start, NULL);
-
-    printf("Press Ctrl+C to stop the program.\n");
-
-    while (1) {
-        // Get the current time
-        gettimeofday(&current, NULL);
-        
-        // Calculate the elapsed time in milliseconds
-        long seconds = current.tv_sec - start.tv_sec;
-        long microseconds = current.tv_usec - start.tv_usec;
-        long total_milliseconds = seconds * 1000 + (microseconds / 1000);
-
-        // Print the elapsed time
-        printf("Elapsed time: %ld milliseconds\r", total_milliseconds);
-        fflush(stdout); // Ensure output is printed immediately
-
-        // Sleep for a short while to avoid busy waiting
-        usleep(100000); // Sleep for 100 milliseconds
-    }
-
+    printf("time %ld\n", get_current_time());
+    usleep(100000);
+    printf("time %ld\n", get_current_time());
+    printf("time %ld\n", get_current_time());
     return 0;
 }
 
