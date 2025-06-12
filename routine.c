@@ -1,21 +1,54 @@
 #include "philo.h"
 
-int     detect_death(t_philo *philo)
+void    print_state(t_philo *philo, char *state)
 {
-        size_t  current_time;
+        pthread_mutex_lock(&philo->p_data->print_mutex);
+        printf("%zu %d %s\n", get_current_time(), philo->id, state);
+        pthread_mutex_unlock(&philo->p_data->print_mutex);   
+}
 
-        current_time = get_current_time();
-        // printf("curr %ld   %ld  \n", (current_time - philo->last_eat), philo->p_data->time_to_die);
-        if((current_time - philo->last_meal) >= philo->p_data->time_to_die)
+void     *monitor_routine(void *arg)
+{
+        t_data *data = (t_data *)arg;
+        t_philo *tmp;
+
+        while(!data->dead_flag)
         {
-                printf("--------------------- %zu khona %d tah koma died\n", get_current_time(), philo->id);
-                philo->p_data->dead_flag = true;
+                tmp = data->philo;
+                while(tmp)
+                {
+                        pthread_mutex_lock(&tmp->meal_lock);
+                        if((get_current_time() - tmp->last_meal) >= data->time_to_die)
+                        {
+                                print_state(tmp, "died");
+                                pthread_mutex_lock(&data->dead_lock);
+                                data->dead_flag = true;
+                                pthread_mutex_unlock(&data->dead_lock);
+                                break ;
+                        }
+                        pthread_mutex_unlock(&tmp->meal_lock);
+                        ft_usleep(1000);
+                        tmp = tmp->next;
+                }
         }
+
         // else if(philo->p_data->nb_to_eat > 0 && philo->nb_eat >= philo->p_data->nb_to_eat)
         //         philo->p_data->dead_flag = true;
         // else
         //         philo->p_data->dead_flag = false;
-        return (0);
+        return (NULL);
+}
+
+bool    detect_death(t_philo *philo)
+{
+        bool    ret;
+
+        ret = false;
+        pthread_mutex_lock(&philo->p_data->dead_lock);
+        if(philo->p_data->dead_flag)
+                ret = true;
+        pthread_mutex_unlock(&philo->p_data->dead_lock);
+        return (ret);
 }
 
 void    pickup_forks(t_philo *philo)
@@ -23,16 +56,16 @@ void    pickup_forks(t_philo *philo)
         if(philo->id % 2 > 0)
         {
                 pthread_mutex_lock(philo->right_fork);
-                printf("%zu %d has taken a r fork\n", get_current_time(), philo->id);
+                print_state(philo , "has taken a r fork");
                 pthread_mutex_lock(philo->left_fork);
-                printf("%zu %d has taken a l fork\n", get_current_time(), philo->id);
+                print_state(philo ,"has taken a l fork");
         }
         else
         {
                 pthread_mutex_lock(philo->left_fork);
-                printf("%zu %d has taken a l fork\n", get_current_time(), philo->id);
+                print_state(philo ,"has taken a l fork");
                 pthread_mutex_lock(philo->right_fork);
-                printf("%zu %d has taken a r fork\n", get_current_time(), philo->id);
+                print_state(philo , "has taken a r fork");
         }
 }
 
@@ -52,32 +85,25 @@ void    putdown_forks(t_philo *philo)
 
 void    philo_eat(t_philo *philo)
 {
-        detect_death(philo);
-        if(philo->p_data->dead_flag)
-                return ;
         pickup_forks(philo);
-        printf("%zu %d is eating\n", get_current_time(), philo->id);
+        print_state(philo, "is eating");
         philo->nb_eat += 1;
-        ft_usleep(philo->p_data->time_to_eat);
+        pthread_mutex_lock(&philo->meal_lock);
         philo->last_meal = get_current_time();
+        pthread_mutex_unlock(&philo->meal_lock);
+        ft_usleep(philo->p_data->time_to_eat);
         putdown_forks(philo);      
 }
 
 void    philo_sleep(t_philo *philo)
 {
-        detect_death(philo);
-        if(!philo->p_data->dead_flag)
-        {
-                printf("%zu %d is sleeping\n", get_current_time(), philo->id);
-                ft_usleep(philo->p_data->time_to_sleep);
-        }    
+        print_state(philo, "is sleeping");
+        ft_usleep(philo->p_data->time_to_sleep);
 }
 
 void    philo_think(t_philo *philo)
 {
-        detect_death(philo);
-        if(!philo->p_data->dead_flag)
-                printf("%zu %d is thinking\n", get_current_time(), philo->id);
+        print_state(philo, "is thinking");
 }
 
 void    *routine(void *arg)
@@ -87,8 +113,7 @@ void    *routine(void *arg)
         philo->last_meal = get_current_time();
         while(true)
         {
-                detect_death(philo);
-                if(philo->p_data->dead_flag)
+                if(detect_death(philo))
                         break;
                 philo_eat(philo);
                 philo_sleep(philo);

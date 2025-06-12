@@ -19,6 +19,7 @@ typedef struct  s_philo{
         pthread_t       thread;
         pthread_mutex_t         *right_fork;
         pthread_mutex_t         *left_fork;
+        pthread_mutex_t         meal_lock;
         int                     id;
         size_t                  last_meal;
         int                     nb_eat;
@@ -29,7 +30,10 @@ typedef struct  s_philo{
 
 typedef struct  s_data{
         t_philo         *philo;
+        pthread_t       monitor;
         pthread_mutex_t *mutex_array;
+        pthread_mutex_t dead_lock;
+        pthread_mutex_t print_mutex;
         int             number_of_philosophers;
         size_t          time_to_die;
         int             time_to_eat;
@@ -102,5 +106,6 @@ int	print_error(char *context, bool flag);
 size_t	ft_strlen(char *s);
 void	init_fork(t_data *data);
 int    simulation(t_data *data);
+void     *monitor_routine(void *arg);
 
 #endif
