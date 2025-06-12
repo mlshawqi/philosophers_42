@@ -66,29 +66,22 @@
 
 
 
+
 int     main(int argc, char *argv[])
 {
         t_data  data;
 
         if(parsing(argc, argv, &data) == 1)
         {
-                cleanup_data(&data);
+                clean_up(&data);
                 return (1);
         }
         if(simulation(&data) == 1)
         {
-                free(data.philo);
-                exit(1);
+                clean_up(&data);
+                return (1);
         }
-        
-        
-        // ft_to_mutex(&data);
-        // // pthread_mutex_destroy(&data.fork_lock);
-        // if(data.dead_flag)
-        // {
-        //         printf("someone died\n");
-        // }
-        // free(data.philo);
+        clean_up(&data);
         return (0);
 
 }

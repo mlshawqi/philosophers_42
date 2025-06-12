@@ -58,10 +58,16 @@ int    init_data(t_data *data)
 {
         int     i;
 
+	i = 0;
 	data->mutex_array = malloc(data->number_of_philosophers * sizeof(pthread_mutex_t));
         if(!data->mutex_array)
 		return (print_error("mutex_array", true));
-        i = 0;
+	while(i < data->number_of_philosophers)
+	{
+		pthread_mutex_init(&data->mutex_array[i], NULL);
+		i++;
+	}
+	i = 0;
         while(i < data->number_of_philosophers)
         {
                 if(link_node(&data->philo, creat_node(data, i + 1)) == 1)

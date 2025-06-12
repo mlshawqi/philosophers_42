@@ -9,8 +9,8 @@ int     creat_threads(t_data *data)
         pthread_mutex_init(&data->print_mutex, NULL);
         while(tmp)
         {
-                pthread_mutex_init(tmp->right_fork, NULL); 
-                pthread_mutex_init(tmp->left_fork, NULL);
+                // pthread_mutex_init(tmp->right_fork, NULL); 
+                // pthread_mutex_init(tmp->left_fork, NULL);
                 pthread_mutex_init(&tmp->meal_lock, NULL);
                 if (pthread_create(&tmp->thread, NULL, &routine, tmp) != 0)
                 {

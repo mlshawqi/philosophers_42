@@ -1,44 +1,5 @@
 #include "philo.h"
 
-void    print_state(t_philo *philo, char *state)
-{
-        pthread_mutex_lock(&philo->p_data->print_mutex);
-        printf("%zu %d %s\n", get_current_time(), philo->id, state);
-        pthread_mutex_unlock(&philo->p_data->print_mutex);   
-}
-
-void     *monitor_routine(void *arg)
-{
-        t_data *data = (t_data *)arg;
-        t_philo *tmp;
-
-        while(!data->dead_flag)
-        {
-                tmp = data->philo;
-                while(tmp)
-                {
-                        pthread_mutex_lock(&tmp->meal_lock);
-                        if((get_current_time() - tmp->last_meal) >= data->time_to_die)
-                        {
-                                print_state(tmp, "died");
-                                pthread_mutex_lock(&data->dead_lock);
-                                data->dead_flag = true;
-                                pthread_mutex_unlock(&data->dead_lock);
-                                break ;
-                        }
-                        pthread_mutex_unlock(&tmp->meal_lock);
-                        ft_usleep(1000);
-                        tmp = tmp->next;
-                }
-        }
-
-        // else if(philo->p_data->nb_to_eat > 0 && philo->nb_eat >= philo->p_data->nb_to_eat)
-        //         philo->p_data->dead_flag = true;
-        // else
-        //         philo->p_data->dead_flag = false;
-        return (NULL);
-}
-
 bool    detect_death(t_philo *philo)
 {
         bool    ret;
@@ -49,6 +10,47 @@ bool    detect_death(t_philo *philo)
                 ret = true;
         pthread_mutex_unlock(&philo->p_data->dead_lock);
         return (ret);
+}
+
+void    print_state(t_philo *philo, char *state)
+{
+        if(detect_death(philo))
+                        return ;
+        pthread_mutex_lock(&philo->p_data->print_mutex);
+        if(!detect_death(philo))
+                printf("%zu %d %s\n", get_current_time(), philo->id, state);
+        pthread_mutex_unlock(&philo->p_data->print_mutex);   
+}
+
+
+void     *monitor_routine(void *arg)
+{
+        t_data *data = (t_data *)arg;
+        t_philo *tmp;
+
+        while(!detect_death(data->philo))
+        {
+                tmp = data->philo;
+                while(tmp)
+                {
+                        pthread_mutex_lock(&tmp->meal_lock);
+                        if((get_current_time() - tmp->last_meal) >= data->time_to_die)
+                        {
+                                pthread_mutex_lock(&data->dead_lock);
+                                pthread_mutex_lock(&data->print_mutex);
+                                printf("%zu %d died\n", get_current_time(), tmp->id);
+                                pthread_mutex_unlock(&data->print_mutex);
+                                data->dead_flag = true;
+                                pthread_mutex_unlock(&data->dead_lock);
+                                pthread_mutex_unlock(&tmp->meal_lock);
+                                break ;
+                        }
+                        pthread_mutex_unlock(&tmp->meal_lock);
+                        tmp = tmp->next;
+                }
+                usleep(500);
+        }
+        return (NULL);
 }
 
 void    pickup_forks(t_philo *philo)
@@ -85,25 +87,36 @@ void    putdown_forks(t_philo *philo)
 
 void    philo_eat(t_philo *philo)
 {
+        if(detect_death(philo))
+                        return ;
         pickup_forks(philo);
-        print_state(philo, "is eating");
-        philo->nb_eat += 1;
         pthread_mutex_lock(&philo->meal_lock);
         philo->last_meal = get_current_time();
         pthread_mutex_unlock(&philo->meal_lock);
+        print_state(philo, "is eating");
+        philo->nb_eat += 1;
         ft_usleep(philo->p_data->time_to_eat);
         putdown_forks(philo);      
 }
 
 void    philo_sleep(t_philo *philo)
 {
+        if(detect_death(philo))
+                        return ;
         print_state(philo, "is sleeping");
         ft_usleep(philo->p_data->time_to_sleep);
 }
 
 void    philo_think(t_philo *philo)
 {
+        if(detect_death(philo))
+                        return ;
         print_state(philo, "is thinking");
+}
+
+void    handle_one_philo(t_philo *philo)
+{
+        print_state(philo, "has taken a fork");
 }
 
 void    *routine(void *arg)
@@ -111,13 +124,18 @@ void    *routine(void *arg)
         t_philo *philo = (t_philo *)arg;
 
         philo->last_meal = get_current_time();
-        while(true)
+        if(philo->p_data->number_of_philosophers == 1)
+                handle_one_philo(philo);
+        else
         {
-                if(detect_death(philo))
-                        break;
-                philo_eat(philo);
-                philo_sleep(philo);
-                philo_think(philo);
+                while(true)
+                {
+                        if(detect_death(philo))
+                                break;
+                        philo_eat(philo);
+                        philo_sleep(philo);
+                        philo_think(philo);
+                }
         }
         return (NULL);
 }

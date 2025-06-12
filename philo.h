@@ -100,7 +100,7 @@ int     check_dead(t_philo *philo);
 int    init_data(t_data *data);
 int	link_node(t_philo **head, t_philo *new_node);
 t_philo         *creat_node(t_data *data, int i);
-void    cleanup_data(t_data *data);
+void    clean_up(t_data *data);
 void	clean_philo(t_philo **list);
 int	print_error(char *context, bool flag);
 size_t	ft_strlen(char *s);
