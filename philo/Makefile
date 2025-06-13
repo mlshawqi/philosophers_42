@@ -1,4 +1,5 @@
-SRCS =  main.c parsing.c utils.c ft_mutex.c routine.c init.c clean.c utils2.c
+SRCS =  main.c parsing.c utils.c simulation.c philo_utils.c init.c clean.c utils2.c \
+	philo_routine.c monitor.c time_utils.c
 
 OBJS = $(SRCS:.c=.o)
 

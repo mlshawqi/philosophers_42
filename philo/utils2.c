@@ -10,7 +10,7 @@ size_t	ft_strlen(char *s)
 	return (j);
 }
 
-t_philo         *creat_node(t_data *data, int i)
+t_philo	*creat_node(t_data *data, int i)
 {
 	t_philo         *node;
 

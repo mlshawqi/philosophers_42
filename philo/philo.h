@@ -84,36 +84,81 @@ typedef struct  s_data{
 //         bool    is_stoop;
 // }       t_data;
 
+// int    parsing(int ac, char *av[]);
+// int    process_input(char **av, int ac);
+// int    ft_initialize(char **av, int ac, t_data *data);
+// int	ft_isdigit(int c);
+// int     ft_atoi(char *str);
+// int	ft_isspace(int c);
+// int	ft_isdigit(int c);
+// int	ft_isspace(int c);
+// int	ft_isempty(char *str);
+// int	is_sign(char *str, int i);
+// int	ft_isnums(char *str);
+
+// void    ft_to_mutex(t_data *data);
+// size_t	get_current_time(void);
+// int	ft_usleep(size_t wait_time);
+
+// int    to_threads(t_data *data);
+// size_t    manage_l_time(size_t **array, int len);
+// void    *philo_routine(void *arg);
+// void    manage_exit(size_t *array, int len);
+// int     check_dead(t_philo *philo);
+// int    init_data(t_data *data);
+// int	link_node(t_philo **head, t_philo *new_node);
+// t_philo         *creat_node(t_data *data, int i);
+// void    clean_up(t_data *data);
+// void	clean_philo(t_philo **list);
+// int	print_error(char *context, bool flag);
+// size_t	ft_strlen(char *s);
+// void	init_fork(t_data *data);
+// int    simulation(t_data *data);
+// void     *monitor_routine(void *arg);
+
+
+
 int    parsing(int ac, char *av[]);
 int    process_input(char **av, int ac);
 int    ft_initialize(char **av, int ac, t_data *data);
-int	ft_isdigit(int c);
-int     ft_atoi(char *str);
-int	ft_isspace(int c);
+int    init_data(t_data *data);
+void	init_fork(t_data *data);
+int    simulation(t_data *data);
+int     join_threads(t_data *data);
+int     creat_threads(t_data *data);
+
+void    *philo_routine(void *arg);
+void    philo_think(t_philo *philo);
+void    philo_sleep(t_philo *philo);
+void    philo_eat(t_philo *philo);
+void    handle_one_philo(t_philo *philo);
+
+void     *monitor_routine(void *arg);
+bool    simulation_stop(t_data *data, t_philo *tmp);
+bool    all_philos_done(t_philo *philo);
+bool    should_stop_eating(t_philo *philo);
+bool    detect_death(t_philo *philo);
+
+int	print_error(char *context, bool flag);
+void	free_list(t_philo **list);
+void    destroy_mutex(t_data *data);
+void    clean_up(t_data *data);
+size_t	ft_strlen(char *s);
+t_philo	*creat_node(t_data *data, int i);
+int	link_node(t_philo **head, t_philo *new_node);
+size_t  get_current_time(void);
+int	ft_usleep(size_t wait_time);
+void    print_state(t_philo *philo, char *state);
+void    increment_eat_count(t_philo *philo);
+void    pickup_forks(t_philo *philo);
+void    putdown_forks(t_philo *philo);
+bool    finish_eating(t_philo *philo);
 int	ft_isdigit(int c);
 int	ft_isspace(int c);
 int	ft_isempty(char *str);
 int	is_sign(char *str, int i);
-int	ft_isnums(char *str);
+int     ft_atoi(char *str);
 
-void    ft_to_mutex(t_data *data);
-size_t	get_current_time(void);
-int	ft_usleep(size_t wait_time);
 
-int    to_threads(t_data *data);
-size_t    manage_l_time(size_t **array, int len);
-void    *philo_routine(void *arg);
-void    manage_exit(size_t *array, int len);
-int     check_dead(t_philo *philo);
-int    init_data(t_data *data);
-int	link_node(t_philo **head, t_philo *new_node);
-t_philo         *creat_node(t_data *data, int i);
-void    clean_up(t_data *data);
-void	clean_philo(t_philo **list);
-int	print_error(char *context, bool flag);
-size_t	ft_strlen(char *s);
-void	init_fork(t_data *data);
-int    simulation(t_data *data);
-void     *monitor_routine(void *arg);
 
 #endif

@@ -1,6 +1,6 @@
 #include "philo.h"
 
-int	ft_isnums(char *str)
+static int	ft_isnums(char *str)
 {
 	int	i;
 
@@ -17,7 +17,7 @@ int	ft_isnums(char *str)
 	return (1);
 }
 
-int     ft_valid(char *str)
+static int     ft_valid(char *str)
 {
         if (str[0] != '\0' && ft_isnums(str) && (ft_isempty(str) == 0))
 				return (0);
