@@ -45,6 +45,7 @@ typedef struct  s_data{
 }       t_data;
 
 
+
 int    parsing(int ac, char *av[]);
 int    process_input(char **av, int ac);
 int    ft_initialize(char **av, int ac, t_data *data);
