@@ -1,5 +1,21 @@
 #include "philo.h"
 
+int	print_error(char *context, bool flag)
+{
+	if (flag)
+	{
+		write(2, "warning: failed to allocate ", 28);
+		write(2, context, ft_strlen(context));
+		write(2, "\n", 1);
+	}
+	else
+	{
+		write(2, context, ft_strlen(context));
+		write(2, "\n", 1);
+	}
+	return (1);
+}
+
 void	free_list(t_philo **list)
 {
 	t_philo *p;
@@ -23,14 +39,17 @@ void    destroy_mutex(t_data *data)
         int     i;
 
         i = 0;
-        while(i < data->number_of_philosophers)
+	if(data->mutex_array)
 	{
-		pthread_mutex_destroy(&data->mutex_array[i]);
-		i++;
+		while(i < data->number_of_philosophers)
+		{
+			pthread_mutex_destroy(&data->mutex_array[i]);
+			i++;
+		}
+		free(data->mutex_array);
+		pthread_mutex_destroy(&data->dead_lock);
+		pthread_mutex_destroy(&data->print_mutex);
 	}
-        free(data->mutex_array);
-        pthread_mutex_destroy(&data->dead_lock);
-        pthread_mutex_destroy(&data->print_mutex);
 }
 
 void    clean_up(t_data *data)

@@ -20,9 +20,11 @@ typedef struct  s_philo{
         pthread_mutex_t         *right_fork;
         pthread_mutex_t         *left_fork;
         pthread_mutex_t         meal_lock;
+        pthread_mutex_t         eat_count_lock;
+        bool                    done;
         int                     id;
         size_t                  last_meal;
-        int                     nb_eat;
+        int                     eat_count;
         struct s_philo  *next;
         struct s_philo  *prev;
         t_data          *p_data;
@@ -82,11 +84,17 @@ typedef struct  s_data{
 //         bool    is_stoop;
 // }       t_data;
 
-int    parsing(int ac, char *av[], t_data *data);
-int    process_input(char **av, int ac, t_data *data);
+int    parsing(int ac, char *av[]);
+int    process_input(char **av, int ac);
 int    ft_initialize(char **av, int ac, t_data *data);
-int     ft_isdigit(char *str);
+int	ft_isdigit(int c);
 int     ft_atoi(char *str);
+int	ft_isspace(int c);
+int	ft_isdigit(int c);
+int	ft_isspace(int c);
+int	ft_isempty(char *str);
+int	is_sign(char *str, int i);
+int	ft_isnums(char *str);
 
 void    ft_to_mutex(t_data *data);
 size_t	get_current_time(void);
@@ -94,7 +102,7 @@ int	ft_usleep(size_t wait_time);
 
 int    to_threads(t_data *data);
 size_t    manage_l_time(size_t **array, int len);
-void    *routine(void *arg);
+void    *philo_routine(void *arg);
 void    manage_exit(size_t *array, int len);
 int     check_dead(t_philo *philo);
 int    init_data(t_data *data);

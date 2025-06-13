@@ -9,10 +9,9 @@ int     creat_threads(t_data *data)
         pthread_mutex_init(&data->print_mutex, NULL);
         while(tmp)
         {
-                // pthread_mutex_init(tmp->right_fork, NULL); 
-                // pthread_mutex_init(tmp->left_fork, NULL);
                 pthread_mutex_init(&tmp->meal_lock, NULL);
-                if (pthread_create(&tmp->thread, NULL, &routine, tmp) != 0)
+                pthread_mutex_init(&tmp->eat_count_lock, NULL);
+                if (pthread_create(&tmp->thread, NULL, &philo_routine, tmp) != 0)
                 {
                         printf("Error creating thread %d\n", tmp->id);
                         return (1);
@@ -55,18 +54,6 @@ int    simulation(t_data *data)
                 return (1);
         if(join_threads(data) == 1)
                 return (1);
-        // if(data->dead_flag)
-        // {
-        //         free(data->mutex_array);
-        //         while(i < data->number_of_philosophers)
-        //         {
-        //                 pthread_mutex_destroy(data->philo[i].r_fork_lock);
-        //                 pthread_mutex_destroy(data->philo[i].l_fork_lock);
-        //                 pthread_mutex_destroy(data->philo[i].dead_lock);
-        //                 i++;
-        //         }
-        //         return (0);
-        // }
         return (0);
 }
 

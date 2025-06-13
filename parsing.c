@@ -1,52 +1,32 @@
 #include "philo.h"
 
-int     ft_isdigit(char *str)
+int	ft_isnums(char *str)
 {
-        int     i;
+	int	i;
 
-        i = 0;
-        if(!str || str[i] == '\0')
-                return (1);
-        if(str[i] == '+' && str[i + 1] != '\0')
-                i++;
-        while (str[i] != '\0')
-        {
-                if (str[i] >= '0' && str[i] <= '9')
-                        i++;
-                else
-                        return (1);
-        }
-        return (0);
+	i = 0;
+	while (str[i] != '\0')
+	{
+		if (i == 0 && str[i] == '+' && ft_isdigit(str[i + 1]))
+			i++;
+		else if (ft_isdigit(str[i]) || ft_isspace(str[i]) || is_sign(str, i))
+			i++;
+		else
+			return (0);
+	}
+	return (1);
 }
 
-int    ft_initialize(char **av, int ac, t_data *data)
+int     ft_valid(char *str)
 {
-        data->philo = NULL;
-        data->number_of_philosophers = ft_atoi(av[1]);
-        if(data->number_of_philosophers > 200 || data->number_of_philosophers == 0)
-        {
-                write(2, "Error: '", 8);
-                write(2, av[1], ft_strlen(av[1]));
-                print_error("' there must be between 1 and 200 philosophers.", false);
-                return (1);
-        }
-        data->time_to_die = ft_atoi(av[2]);
-        data->time_to_eat = ft_atoi(av[3]);
-        data->time_to_sleep = ft_atoi(av[4]);
-        data->dead_flag = false;
-        data->nb_to_eat = 0;
-        if(ac == 6)
-        {
-                data->nb_to_eat = ft_atoi(av[5]);
-                if(data->nb_to_eat == 0)
-                        data->dead_flag = true;
-        }
-        if(init_data(data) == 1)
+        if (str[0] != '\0' && ft_isnums(str) && (ft_isempty(str) == 0))
+				return (0);
+        else
                 return (1);
         return (0);
 }
 
-int    process_input(char **av, int ac, t_data *data)
+int    process_input(char **av, int ac)
 {
         int     tmp;
         int     i;
@@ -55,21 +35,19 @@ int    process_input(char **av, int ac, t_data *data)
         while(i < ac)
         {
                 tmp = ft_atoi(av[i]);
-                if(tmp == -1)
+                if(tmp <= 0)
                 {
                         write(2, "Error: '", 8);
                         write(2, av[i], ft_strlen(av[i]));
-                        print_error("' not a valid unsigned integer between 0 and INT_MAX", false);
+                        print_error("' not a valid unsigned integer between 1 and INT_MAX", false);
                         return (1);
                 }
                 i++;
         }
-        if(ft_initialize(av, ac, data) == 1)
-                return (1);
         return (0);
 }
 
-int    parsing(int ac, char *av[], t_data *data)
+int    parsing(int ac, char *av[])
 {
         int     i;
 
@@ -78,7 +56,7 @@ int    parsing(int ac, char *av[], t_data *data)
                 i = 1;
                 while (i < ac)
                 {
-                        if (ft_isdigit(av[i]) != 0)
+                        if (ft_valid(av[i]) != 0)
                         {
                                 write(2, "Error: '", 8);
                                 write(2, av[i], ft_strlen(av[i]));
@@ -87,7 +65,7 @@ int    parsing(int ac, char *av[], t_data *data)
                         }
                         i++;
                 }
-                return(process_input(av, ac, data));
+                return(process_input(av, ac));
         }
         else
         {
