@@ -27,6 +27,7 @@ void	free_list(t_philo **list)
 	{
 		p = (*list)->next;
                 pthread_mutex_destroy(&(*list)->meal_lock);
+		pthread_mutex_destroy(&(*list)->eat_count_lock);
 		free(*list);
 		*list = p;
 	}
