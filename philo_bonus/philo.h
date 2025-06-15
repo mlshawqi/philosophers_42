@@ -10,18 +10,24 @@
 # include <pthread.h>
 # include <sys/wait.h>
 #include <sys/time.h>
+#include <semaphore.h>
+#include <fcntl.h>
+
+#define SEM_FAIL ((sem_t *) -1)
+#define DEAD_NAME "/dead"
+#define PRINT_NAME "/print"
+
 
 typedef struct  s_philo t_philo;
 typedef struct  s_data  t_data;
 
 
 typedef struct  s_philo{
-        pthread_t       thread;
-        pthread_mutex_t         *right_fork;
-        pthread_mutex_t         *left_fork;
-        pthread_mutex_t         meal_lock;
-        pthread_mutex_t         eat_count_lock;
-        bool                    done;
+        int             pid;
+        sem_t         *right_fork;
+        sem_t         *left_fork;
+        sem_t         *meal_lock;
+        sem_t         *eat_count_lock;
         int                     id;
         size_t                  last_meal;
         int                     eat_count;
@@ -32,10 +38,14 @@ typedef struct  s_philo{
 
 typedef struct  s_data{
         t_philo         *philo;
-        pthread_t       monitor;
-        pthread_mutex_t *mutex_array;
-        pthread_mutex_t dead_lock;
-        pthread_mutex_t print_mutex;
+        int             pid;
+        // pthread_t       monitor;
+        char    **names;
+        char    **meals;
+        char    **eats;
+        sem_t   **sem_array;
+        sem_t *dead_lock;
+        sem_t *print_lock;
         int             number_of_philosophers;
         size_t          time_to_die;
         int             time_to_eat;
@@ -88,5 +98,11 @@ int	is_sign(char *str, int i);
 int     ft_atoi(char *str);
 
 
+
+
+char	*ft_itoa(int n);
+char	*ft_strjoin(char *s1, char *s2);
+void	free_string_array(char **array);
+void	ft_bzero(void *s, size_t n);
 
 #endif
