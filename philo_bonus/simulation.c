@@ -25,9 +25,8 @@ void    kill_all_philos(t_philo *philo)
         tmp = philo->p_data->philo;
         while(tmp)
         {
-                printf("in killing %d\n", tmp->id);
-                if(tmp->id != philo->id)
-                        kill(tmp->pid, SIGKILL);
+                printf("------in killing %d\n", tmp->id);
+                kill(tmp->pid, SIGKILL);
                 tmp = tmp->next;
         }
 }
@@ -75,6 +74,9 @@ int     wait_processes(t_data *data)
         while(tmp)
         {
                 waitpid(tmp->pid, &status, 0);
+                printf("exit == %d\n", WEXITSTATUS(status));
+                if(WEXITSTATUS(status) == 1)
+                        kill_all_philos(tmp);
                 tmp = tmp->next;
         }
         return (0); 

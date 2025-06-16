@@ -65,12 +65,7 @@ void     *monitor_routine(void *arg)
         {
                 if(simulation_stop(philo))
                 {
-                        printf("here calling kill in %d\n", philo->id);
-                        sem_wait(philo->p_data->dead_lock);
-                        kill_all_philos(philo);
-                        sem_post(philo->p_data->dead_lock);
-                        printf("after calling\n");
-                        exit(0);
+                        philo->p_data->dead_flag = true;
                         return (NULL);
                 }
                 usleep(500);

@@ -66,11 +66,18 @@ void    *philo_routine(void *arg)
                 handle_monitor(philo, true);
                 while(true)
                 {
+                        if(philo->p_data->dead_flag == true)
+                        {
+                                printf("first exit %d\n", philo->id);
+                                exit (1);
+                        }
                         philo_think(philo);
                         philo_eat(philo);
                         philo_sleep(philo);
                 }
                 handle_monitor(philo, false);
+                if(philo->p_data->dead_flag == true)
+                        exit (1);
         }
         return (NULL);
 }
