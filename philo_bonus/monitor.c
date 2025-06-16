@@ -4,82 +4,169 @@ bool    detect_death(t_philo *philo)
 {
         bool    ret;
 
+        (void)philo;
         ret = false;
-        sem_wait(philo->p_data->dead_lock);
-        if(philo->p_data->dead_flag)
-                ret = true;
-        sem_post(philo->p_data->dead_lock);
         return (ret);
 }
 
-bool    should_stop_eating(t_philo *philo)
-{
-        bool    ret;
+// bool    should_stop_eating(t_philo *philo)
+// {
+//         bool    ret;
 
-        ret = false;
-        if(philo->p_data->nb_to_eat <= 0)
-                return (false);
-        sem_wait(philo->eat_count_lock);
-        if (philo->eat_count >= philo->p_data->nb_to_eat)
-                ret = true;
-        sem_post(philo->eat_count_lock);  
-        return (ret);
-}
+//         ret = false;
+//         if(philo->p_data->nb_to_eat <= 0)
+//                 return (false);
+//         sem_wait(philo->eat_count_lock);
+//         if (philo->eat_count >= philo->p_data->nb_to_eat)
+//                 sem_post(philo->counter);
+//         sem_post(philo->eat_count_lock);  
+//         return (ret);
+// }
 
-bool    all_philos_done(t_philo *philo)
-{
-        while(philo)
-        {
-                if(should_stop_eating(philo))
-                        philo = philo->next;
-                else
-                        return (false);
-        }
-        return (true);
-}
-
-bool    simulation_stop(t_data *data, t_philo *tmp)
+bool    simulation_stop(t_philo *tmp)
 {
         size_t  meals;
 
         sem_wait(tmp->meal_lock);
         meals = tmp->last_meal;
         sem_post(tmp->meal_lock);
-        if((get_current_time() - meals) >= data->time_to_die)
+        // should_stop_eating(tmp);
+        if((get_current_time() - meals) >= tmp->p_data->time_to_die)
         {
-                sem_wait(data->dead_lock);
-                sem_post(&data->print_lock);
+                sem_wait(tmp->p_data->print_lock);
                 printf("%zu %d died\n", get_current_time(), tmp->id);
-                sem_post(data->print_lock);
-                data->dead_flag = true;
-                sem_post(data->dead_lock);
-                return (true);
-        }
-        else if(all_philos_done(data->philo))
-        {
-                sem_wait(data->dead_lock);
-                data->dead_flag = true;
-                sem_post(data->dead_lock);
+                sem_post(tmp->p_data->print_lock);
                 return (true);
         }
         return (false);
 }
 
+// void    post_all(t_philo *philo)
+// {
+//         t_philo *tmp;
+
+//         tmp = philo->p_data->philo;
+//         while(tmp)
+//         {
+//                 sem_wait(tmp->eat_count_lock);
+//                 if (tmp->eat_count < tmp->p_data->nb_to_eat)
+//                         sem_post(tmp->counter);
+//                 sem_post(tmp->eat_count_lock);
+//                 tmp = tmp->next;
+//         }
+//         printf("after here\n");
+// }
+
 void     *monitor_routine(void *arg)
 {
-        t_data *data = (t_data *)arg;
-        t_philo *tmp;
+        t_philo *philo = (t_philo *)arg;
 
-        while(!detect_death(data->philo))
+        while(true)
         {
-                tmp = data->philo;
-                while(tmp)
+                if(simulation_stop(philo))
                 {
-                        if(simulation_stop(data, tmp))
-                                return (NULL);
-                        tmp = tmp->next;
+                        printf("here calling kill in %d\n", philo->id);
+                        sem_wait(philo->p_data->dead_lock);
+                        kill_all_philos(philo);
+                        sem_post(philo->p_data->dead_lock);
+                        printf("after calling\n");
+                        exit(0);
+                        return (NULL);
                 }
                 usleep(500);
         }
         return (NULL);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// bool    detect_death(t_philo *philo)
+// {
+//         bool    ret;
+
+//         ret = false;
+//         sem_wait(philo->p_data->dead_lock);
+//         if(philo->p_data->dead_flag)
+//                 ret = true;
+//         sem_post(philo->p_data->dead_lock);
+//         return (ret);
+// }
+
+// bool    should_stop_eating(t_philo *philo)
+// {
+//         bool    ret;
+
+//         ret = false;
+//         if(philo->p_data->nb_to_eat <= 0)
+//                 return (false);
+//         sem_wait(philo->eat_count_lock);
+//         if (philo->eat_count >= philo->p_data->nb_to_eat)
+//                 sem_post(philo->counter);
+//         sem_post(philo->eat_count_lock);  
+//         return (ret);
+// }
+
+// bool    simulation_stop(t_philo *tmp)
+// {
+//         size_t  meals;
+
+//         sem_wait(tmp->meal_lock);
+//         meals = tmp->last_meal;
+//         sem_post(tmp->meal_lock);
+//         printf("hereeeeesssssssss\n");
+//         should_stop_eating(tmp);
+//         if((get_current_time() - meals) >= tmp->p_data->time_to_die)
+//         {
+//                 printf("hereee\n");
+//                 sem_wait(tmp->p_data->print_lock);
+//                 printf("%zu %d died\n", get_current_time(), tmp->id);
+//                 sem_post(tmp->p_data->print_lock);
+//                 printf("here after\n");
+//                 return (true);
+//         }
+//         return (false);
+// }
+
+// void    post_all(t_philo *philo)
+// {
+//         t_philo *tmp;
+
+//         printf("here\n");
+//         tmp = philo->p_data->philo;
+//         while(tmp)
+//         {
+//                 sem_wait(tmp->eat_count_lock);
+//                 if (tmp->eat_count < tmp->p_data->nb_to_eat)
+//                         sem_post(tmp->counter);
+//                 sem_post(tmp->eat_count_lock);
+//                 tmp = tmp->next;
+//         }
+//         printf("after here\n");
+// }
+
+// void     *monitor_routine(void *arg)
+// {
+//         t_philo *philo = (t_philo *)arg;
+
+//         while(true)
+//         {
+//                 if(simulation_stop(philo))
+//                 {
+//                         post_all(philo);
+//                         return (NULL);
+//                 }
+//                 usleep(500);
+//         }
+//         return (NULL);
+// }

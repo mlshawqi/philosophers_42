@@ -1,53 +1,53 @@
 #include "philo.h"
 
-void	init_fork(t_data *data)
-{
-	int	i;
-	t_philo		*tmp;
+// void	init_fork(t_data *data)
+// {
+// 	int	i;
+// 	t_philo		*tmp;
 
-	i = 0;
-	tmp = data->philo;
-	while(i < data->number_of_philosophers)
-	{
-		if(!tmp->prev)
-			tmp->left_fork = data->sem_array[data->number_of_philosophers - 1];
-		tmp->right_fork = data->sem_array[i];
-		if(tmp->next)
-			tmp->next->left_fork = data->sem_array[i];
-		i++;
-		tmp = tmp->next;
-	}
-}
-int    get_name(t_data *data)
-{
-        int     i;
-        char    *tmp;
+// 	i = 0;
+// 	tmp = data->philo;
+// 	while(i < data->number_of_philosophers)
+// 	{
+// 		if(!tmp->prev)
+// 			tmp->left_fork = data->sem_array[data->number_of_philosophers - 1];
+// 		tmp->right_fork = data->sem_array[i];
+// 		if(tmp->next)
+// 			tmp->next->left_fork = data->sem_array[i];
+// 		i++;
+// 		tmp = tmp->next;
+// 	}
+// }
+// int    get_name(t_data *data)
+// {
+//         int     i;
+//         char    *tmp;
 
-        data->names = malloc(sizeof(char *) * (data->number_of_philosophers + 1));
-        if(!data->names)
-                return (print_error("data_names", true));
-        i = 0;
-        ft_bzero(data->names, (data->number_of_philosophers + 1) * sizeof(char *));
-        while(i < data->number_of_philosophers)
-        {
-                tmp = NULL;
-                tmp = ft_itoa(i);
-                if(!tmp)
-                {
-                        free_string_array(data->names);
-                        return (print_error("data_names", true));
-                }
-                data->names[i] = ft_strjoin("/name", tmp);
-                free(tmp);
-                if(!data->names[i])
-                {
-                        free_string_array(data->names);
-                        return (print_error("data_names", true));
-                }
-                i++;
-        }
-        return (0);
-}
+//         data->names = malloc(sizeof(char *) * (data->number_of_philosophers + 1));
+//         if(!data->names)
+//                 return (print_error("data_names", true));
+//         i = 0;
+//         ft_bzero(data->names, (data->number_of_philosophers + 1) * sizeof(char *));
+//         while(i < data->number_of_philosophers)
+//         {
+//                 tmp = NULL;
+//                 tmp = ft_itoa(i);
+//                 if(!tmp)
+//                 {
+//                         free_string_array(data->names);
+//                         return (print_error("data_names", true));
+//                 }
+//                 data->names[i] = ft_strjoin("/name", tmp);
+//                 free(tmp);
+//                 if(!data->names[i])
+//                 {
+//                         free_string_array(data->names);
+//                         return (print_error("data_names", true));
+//                 }
+//                 i++;
+//         }
+//         return (0);
+// }
 
 char    *gave_name(char *str, int i)
 {
@@ -108,40 +108,23 @@ int    init_data(t_data *data)
         int     i;
 
 	i = 0;
-	data->sem_array = malloc(data->number_of_philosophers * sizeof(sem_t *));
-        if(!data->sem_array)
-		return (print_error("sem_array", true));
-        ft_bzero(data->sem_array, data->number_of_philosophers * sizeof(sem_t *));
-        data->names = get_names(data, "names");
-        data->meals = get_names(data, "meals");
-        data->eats = get_names(data, "eat");
-        if(!data->names || !data->meals || !data->eats)
-                return (1);
-	while(i < data->number_of_philosophers)
-	{
-	        data->sem_array[i] = sem_open(data->names[i], O_CREAT | O_EXCL, 0644, 1);
-                if(data->sem_array[i] == SEM_FAIL)
-                {
-                        return (print_error("sem_open failed", false));
-                }
-		i++;
-	}
-        i = 0;
         while(i < data->number_of_philosophers)
         {
                 if(link_node(&data->philo, creat_node(data, i + 1)) == 1)
-			return (1);
+                        return (1);
                 i++;
         }
-	init_fork(data);
+        data->meals = get_names(data, "meals");
+        data->eats = get_names(data, "eat");
+        if(!data->meals || !data->eats)
+                return (1);
+	// init_fork(data);
 	return (0);
 }
 
 int    ft_initialize(char **av, int ac, t_data *data)
 {
         data->philo = NULL;
-        data->sem_array = NULL;
-        data->names = NULL;
         data->meals = NULL;
         data->eats = NULL;
         data->time_to_die = ft_atoi(av[2]);
@@ -167,3 +150,8 @@ int    ft_initialize(char **av, int ac, t_data *data)
                 return (1);
         return (0);
 }
+
+        // data->sem_array = NULL;
+        // data->names = NULL;
+        // data->meals = NULL;
+        // data->eats = NULL;

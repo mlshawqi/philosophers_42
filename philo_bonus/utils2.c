@@ -21,8 +21,7 @@ t_philo	*creat_node(t_data *data, int i)
 	node->p_data = data;
 	node->last_meal = 0;
 	node->eat_count = 0;
-	// node->left_fork = NULL;
-	// node->right_fork = NULL;
+	node->pid = -1;
 	node->next = NULL;
 	node->prev = NULL;
 	return (node);

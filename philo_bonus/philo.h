@@ -12,23 +12,20 @@
 #include <sys/time.h>
 #include <semaphore.h>
 #include <fcntl.h>
+# include <signal.h>
 
 #define SEM_FAIL ((sem_t *) -1)
-#define DEAD_NAME "/dead"
-#define PRINT_NAME "/print"
-
 
 typedef struct  s_philo t_philo;
 typedef struct  s_data  t_data;
 
 
 typedef struct  s_philo{
-        int             pid;
-        sem_t         *right_fork;
-        sem_t         *left_fork;
-        sem_t         *meal_lock;
-        sem_t         *eat_count_lock;
+        pthread_t       monitor;
+        sem_t           *meal_lock;
+        sem_t           *eat_count_lock;
         int                     id;
+        pid_t                   pid;
         size_t                  last_meal;
         int                     eat_count;
         struct s_philo  *next;
@@ -38,14 +35,11 @@ typedef struct  s_philo{
 
 typedef struct  s_data{
         t_philo         *philo;
-        int             pid;
-        // pthread_t       monitor;
-        char    **names;
-        char    **meals;
-        char    **eats;
-        sem_t   **sem_array;
-        sem_t *dead_lock;
-        sem_t *print_lock;
+        sem_t           *forks;
+        sem_t           *dead_lock;
+        sem_t           *print_lock;
+        char            **meals;
+        char            **eats;
         int             number_of_philosophers;
         size_t          time_to_die;
         int             time_to_eat;
@@ -53,6 +47,60 @@ typedef struct  s_data{
         int             nb_to_eat;
         bool             dead_flag;
 }       t_data;
+
+
+
+
+
+
+
+// #define SEM_FAIL ((sem_t *) -1)
+// #define DEAD_NAME "/dead"
+// #define EATEN_COUNTER "/eaten_counter"
+// #define PRINT_NAME "/print"
+// #define FORKS_NAME "/forks"
+
+
+// typedef struct  s_philo t_philo;
+// typedef struct  s_data  t_data;
+
+
+// typedef struct  s_philo{
+//         pthread_t       monitor;
+//         pid_t             pid;
+//         sem_t           *fork;
+//         sem_t         *right_fork;
+//         sem_t         *left_fork;
+//         sem_t         *meal_lock;
+//         sem_t         *eat_count_lock;
+//         sem_t           *print;
+//         sem_t           *counter;
+//         int                     id;
+//         size_t                  last_meal;
+//         int                     eat_count;
+//         struct s_philo  *next;
+//         struct s_philo  *prev;
+//         t_data          *p_data;
+// }               t_philo;
+
+// typedef struct  s_data{
+//         t_philo         *philo;
+//         pid_t             pid;
+//         sem_t          *forks;
+//         char    **names;
+//         char    **meals;
+//         char    **eats;
+//         sem_t   **sem_array;
+//         sem_t *dead_lock;
+//         sem_t *print_lock;
+//         sem_t   *eat_counter;
+//         int             number_of_philosophers;
+//         size_t          time_to_die;
+//         int             time_to_eat;
+//         int             time_to_sleep;
+//         int             nb_to_eat;
+//         bool             dead_flag;
+// }       t_data;
 
 
 
@@ -72,7 +120,6 @@ void    philo_eat(t_philo *philo);
 void    handle_one_philo(t_philo *philo);
 
 void     *monitor_routine(void *arg);
-bool    simulation_stop(t_data *data, t_philo *tmp);
 bool    all_philos_done(t_philo *philo);
 bool    should_stop_eating(t_philo *philo);
 bool    detect_death(t_philo *philo);
@@ -104,5 +151,7 @@ char	*ft_itoa(int n);
 char	*ft_strjoin(char *s1, char *s2);
 void	free_string_array(char **array);
 void	ft_bzero(void *s, size_t n);
+void    kill_all_philos(t_philo *philo);
+void    stoop_simulation(t_data *data);
 
 #endif

@@ -21,32 +21,25 @@ void    pickup_forks(t_philo *philo)
 {
         if(philo->id % 2 != 0)
         {
-                sem_wait(philo->right_fork);
+                sem_wait(philo->p_data->forks);
                 print_state(philo , "has taken a r fork");
-                sem_wait(philo->left_fork);
+                sem_wait(philo->p_data->forks);
                 print_state(philo ,"has taken a l fork");
         }
         else
         {
-                sem_wait(philo->left_fork);
+                ft_usleep(philo->p_data->time_to_eat);
+                sem_wait(philo->p_data->forks);
                 print_state(philo ,"has taken a l fork");
-                sem_wait(philo->right_fork);
+                sem_wait(philo->p_data->forks);
                 print_state(philo , "has taken a r fork");
         }
 }
 
 void    putdown_forks(t_philo *philo)
 {
-        if(philo->id % 2 != 0)
-        {
-                sem_post(philo->left_fork);
-                sem_post(philo->right_fork);
-        }
-        else
-        {
-                sem_post(philo->right_fork);
-                sem_post(philo->left_fork);
-        }
+        sem_post(philo->p_data->forks);
+        sem_post(philo->p_data->forks);
 }
 
 bool    finish_eating(t_philo *philo)
