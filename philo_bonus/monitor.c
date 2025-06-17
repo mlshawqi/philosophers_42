@@ -47,7 +47,7 @@ bool    simulation_stop(t_philo *tmp)
                 printf("%zu %d died\n", get_current_time(), tmp->id);
                 sem_post(tmp->p_data->print_lock);
                 // ft_usleep(10);
-                sem_post(tmp->p_data->dead_lock);
+                // sem_post(tmp->p_data->dead_lock);
                 return (true);
         }
         return (false);
@@ -61,8 +61,8 @@ void     *monitor_routine(void *arg)
         {
                 if(simulation_stop(philo))
                 {
-                        printf("return from monitor %d\n", philo->id);
-                        return (NULL);
+                        clean_up(philo->p_data);
+                        exit (1);
                 }
                 usleep(500);
         }

@@ -70,7 +70,6 @@ void    *philo_routine(void *arg)
                 {
                         if(detect_death(philo))
                         {
-                                printf("first exit %d\n", philo->id);
                                 clean_up(philo->p_data);
                                 exit (1);
                         }
