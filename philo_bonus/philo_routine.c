@@ -7,6 +7,8 @@ void    handle_one_philo(t_philo *philo)
 
 void    philo_eat(t_philo *philo)
 {
+        if(detect_death(philo))
+                return ;
         pickup_forks(philo);
         sem_wait(philo->meal_lock);
         philo->last_meal = get_current_time();
@@ -20,7 +22,7 @@ void    philo_eat(t_philo *philo)
 void    philo_sleep(t_philo *philo)
 {
         if(detect_death(philo))
-                        return ;
+                return ;
         print_state(philo, "is sleeping");
         ft_usleep(philo->p_data->time_to_sleep);
 }
@@ -28,7 +30,7 @@ void    philo_sleep(t_philo *philo)
 void    philo_think(t_philo *philo)
 {
         if(detect_death(philo))
-                        return ;
+                return ;
         print_state(philo, "is thinking");
 }
 
@@ -66,9 +68,10 @@ void    *philo_routine(void *arg)
                 handle_monitor(philo, true);
                 while(true)
                 {
-                        if(philo->p_data->dead_flag == true)
+                        if(detect_death(philo))
                         {
                                 printf("first exit %d\n", philo->id);
+                                clean_up(philo->p_data);
                                 exit (1);
                         }
                         philo_think(philo);
@@ -76,7 +79,7 @@ void    *philo_routine(void *arg)
                         philo_sleep(philo);
                 }
                 handle_monitor(philo, false);
-                if(philo->p_data->dead_flag == true)
+                if(detect_death(philo))
                         exit (1);
         }
         return (NULL);
