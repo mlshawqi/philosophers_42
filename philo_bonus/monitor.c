@@ -7,38 +7,40 @@ bool    detect_death(t_philo *philo)
         ret = false;
         sem_wait(philo->p_data->dead_lock);
         if(philo->p_data->dead_flag)
-        {
-                printf("flag catshed %d\n", philo->id);
                 ret = true;
-        }
         sem_post(philo->p_data->dead_lock);
         return (ret);
 }
 
-// bool    should_stop_eating(t_philo *philo)
-// {
-//         bool    ret;
+bool    should_stop_eating(t_philo *philo)
+{
+        bool    ret;
 
-//         ret = false;
-//         if(philo->p_data->nb_to_eat <= 0)
-//                 return (false);
-//         sem_wait(philo->eat_count_lock);
-//         if (philo->eat_count >= philo->p_data->nb_to_eat)
-//                 sem_post(philo->counter);
-//         sem_post(philo->eat_count_lock);  
-//         return (ret);
-// }
+        ret = false;
+        if(philo->p_data->nb_to_eat <= 0)
+                return (false);
+        sem_wait(philo->meal_lock);
+        if (philo->eat_count >= philo->p_data->nb_to_eat)
+        {
+                printf("--------philo exit %d\n", philo->id);
+                sem_post(philo->meal_lock);
+                clean_up(philo->p_data);
+                exit (0);
+        }
+        sem_post(philo->meal_lock);  
+        return (ret);
+}
 
 bool    simulation_stop(t_philo *tmp)
 {
         size_t  meals;
 
         if(detect_death(tmp))
-                return (false);
+                return (true);
+        should_stop_eating(tmp);
         sem_wait(tmp->meal_lock);
         meals = tmp->last_meal;
         sem_post(tmp->meal_lock);
-        // should_stop_eating(tmp);
         if((get_current_time() - meals) >= tmp->p_data->time_to_die)
         {
                 sem_wait(tmp->p_data->dead_lock);
@@ -64,7 +66,7 @@ void     *monitor_routine(void *arg)
                         clean_up(philo->p_data);
                         exit (1);
                 }
-                usleep(500);
+                usleep(100);
         }
         return (NULL);
 }

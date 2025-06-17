@@ -2,7 +2,12 @@
 
 void    handle_one_philo(t_philo *philo)
 {
-        print_state(philo, "has taken a fork");
+        sem_wait(philo->p_data->forks);
+        print_state(philo , "has taken a fork");
+        ft_usleep(philo->p_data->time_to_die);
+        sem_wait(philo->p_data->print_lock);
+        printf("%zu %d died\n", get_current_time(), philo->id);
+        sem_post(philo->p_data->print_lock);
 }
 
 void    philo_eat(t_philo *philo)
@@ -10,11 +15,11 @@ void    philo_eat(t_philo *philo)
         if(detect_death(philo))
                 return ;
         pickup_forks(philo);
+        print_state(philo, "is eating");
         sem_wait(philo->meal_lock);
         philo->last_meal = get_current_time();
+        philo->eat_count += 1;
         sem_post(philo->meal_lock);
-        print_state(philo, "is eating");
-        // increment_eat_count(philo);   
         ft_usleep(philo->p_data->time_to_eat);
         putdown_forks(philo);
 }
@@ -29,8 +34,6 @@ void    philo_sleep(t_philo *philo)
 
 void    philo_think(t_philo *philo)
 {
-        if(detect_death(philo))
-                return ;
         print_state(philo, "is thinking");
 }
 
@@ -59,6 +62,7 @@ int     handle_monitor(t_philo *philo, bool create)
 void    *philo_routine(void *arg)
 {
         t_philo *philo = (t_philo *)arg;
+        int     i = 0;
 
         philo->last_meal = get_current_time();
         if(philo->p_data->number_of_philosophers == 1)
@@ -69,17 +73,18 @@ void    *philo_routine(void *arg)
                 while(true)
                 {
                         if(detect_death(philo))
-                        {
-                                clean_up(philo->p_data);
-                                exit (1);
-                        }
+                                return (NULL);
                         philo_think(philo);
+                        if(i == 0 && philo->id % 2 == 0)
+                        {
+                                printf("<<<< %d\n", philo->id);
+                                ft_usleep(philo->p_data->time_to_eat);
+                        }
                         philo_eat(philo);
                         philo_sleep(philo);
+                        i++;
                 }
                 handle_monitor(philo, false);
-                if(detect_death(philo))
-                        exit (1);
         }
         return (NULL);
 }

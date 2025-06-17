@@ -10,30 +10,30 @@ void    print_state(t_philo *philo, char *state)
         sem_post(philo->p_data->print_lock);   
 }
 
-void    increment_eat_count(t_philo *philo)
-{
-        sem_wait(philo->eat_count_lock);
-        philo->eat_count += 1;
-        sem_post(philo->eat_count_lock);
-}
+// void    increment_eat_count(t_philo *philo)
+// {
+//         sem_wait(philo->meal_lock);
+//         philo->eat_count += 1;
+//         sem_post(philo->meal_lock);
+// }
 
 void    pickup_forks(t_philo *philo)
 {
-        if(philo->id % 2 != 0)
-        {
+        // if(philo->id % 2 != 0)
+        // {
                 sem_wait(philo->p_data->forks);
-                print_state(philo , "has taken a r fork");
+                print_state(philo , "has taken a fork");
                 sem_wait(philo->p_data->forks);
-                print_state(philo ,"has taken a l fork");
-        }
-        else
-        {
-                ft_usleep(philo->p_data->time_to_eat);
-                sem_wait(philo->p_data->forks);
-                print_state(philo ,"has taken a l fork");
-                sem_wait(philo->p_data->forks);
-                print_state(philo , "has taken a r fork");
-        }
+                print_state(philo ,"has taken a fork");
+        // }
+        // else
+        // {
+        //         ft_usleep(philo->p_data->time_to_eat);
+        //         sem_wait(philo->p_data->forks);
+        //         print_state(philo ,"has taken a fork");
+        //         sem_wait(philo->p_data->forks);
+        //         print_state(philo , "has taken a fork");
+        // }
 }
 
 void    putdown_forks(t_philo *philo)
