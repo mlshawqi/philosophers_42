@@ -21,7 +21,7 @@ t_philo	*creat_node(t_data *data, int i)
 	node->p_data = data;
 	node->last_meal = 0;
 	node->eat_count = 0;
-        node->done = false;
+        node->is_eating = false;
 	node->next = NULL;
 	node->prev = NULL;
 	return (node);

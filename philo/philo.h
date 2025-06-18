@@ -21,7 +21,7 @@ typedef struct  s_philo{
         pthread_mutex_t         *left_fork;
         pthread_mutex_t         meal_lock;
         pthread_mutex_t         eat_count_lock;
-        bool                    done;
+        bool                    is_eating;
         int                     id;
         size_t                  last_meal;
         int                     eat_count;

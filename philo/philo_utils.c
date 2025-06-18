@@ -19,19 +19,19 @@ void    increment_eat_count(t_philo *philo)
 
 void    pickup_forks(t_philo *philo)
 {
-        if(philo->id % 2 > 0)
+        if(philo->id % 2 != 0)
         {
                 pthread_mutex_lock(philo->right_fork);
-                print_state(philo , "has taken a r fork");
+                print_state(philo , "has taken a fork");
                 pthread_mutex_lock(philo->left_fork);
-                print_state(philo ,"has taken a l fork");
+                print_state(philo ,"has taken a fork");
         }
         else
         {
                 pthread_mutex_lock(philo->left_fork);
-                print_state(philo ,"has taken a l fork");
+                print_state(philo ,"has taken a fork");
                 pthread_mutex_lock(philo->right_fork);
-                print_state(philo , "has taken a r fork");
+                print_state(philo , "has taken a fork");
         }
 }
 

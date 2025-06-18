@@ -47,7 +47,7 @@ int    ft_initialize(char **av, int ac, t_data *data)
 {
         data->philo = NULL;
         data->mutex_array = NULL;
-        data->time_to_die = ft_atoi(av[2]);
+        data->time_to_die = (size_t)ft_atoi(av[2]);
         data->time_to_eat = ft_atoi(av[3]);
         data->time_to_sleep = ft_atoi(av[4]);
         data->dead_flag = false;
