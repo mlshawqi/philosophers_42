@@ -54,10 +54,15 @@ void    *philo_routine(void *arg)
                 while(!detect_death(philo))
                 {
                         philo_think(philo);
-                        if(i == 0 && (philo->id % 2 == 0))
-                                ft_usleep((philo->p_data->time_to_eat) / 2);
+                        if(i == 0 && philo->p_data->number_of_philosophers % 2 != 0 && philo->id == 1)
+                                ft_usleep(philo->p_data->time_to_eat);
+                        if(i == 0 && (philo->id % 2 != 0))
+                                ft_usleep(10);
                         philo_eat(philo);
                         philo_sleep(philo);
+                        if (philo->p_data->number_of_philosophers % 2 == 1
+			        && philo->p_data->time_to_eat >= philo->p_data->time_to_sleep)
+			        ft_usleep(philo->p_data->time_to_eat);
                         i++;
                 }
         }
