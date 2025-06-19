@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   clean.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: machaouk <marvin@42.fr>                    #+#  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025-06-19 12:07:06 by machaouk          #+#    #+#             */
+/*   Updated: 2025-06-19 12:07:06 by machaouk         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
 int	print_error(char *context, bool flag)
@@ -18,15 +30,14 @@ int	print_error(char *context, bool flag)
 
 void	free_list(t_philo **list)
 {
-	t_philo *p;
+	t_philo	*p;
 
-	
 	if (list == NULL || *list == NULL)
 		return ;
 	while (*list != NULL)
 	{
 		p = (*list)->next;
-                pthread_mutex_destroy(&(*list)->meal_lock);
+		pthread_mutex_destroy(&(*list)->meal_lock);
 		pthread_mutex_destroy(&(*list)->eat_count_lock);
 		free(*list);
 		*list = p;
@@ -35,14 +46,14 @@ void	free_list(t_philo **list)
 	*list = NULL;
 }
 
-void    destroy_mutex(t_data *data)
+void	destroy_mutex(t_data *data)
 {
-        int     i;
+	int	i;
 
-        i = 0;
-	if(data->mutex_array)
+	i = 0;
+	if (data->mutex_array)
 	{
-		while(i < data->nbr_philos)
+		while (i < data->nbr_philos)
 		{
 			pthread_mutex_destroy(&data->mutex_array[i]);
 			i++;
@@ -53,9 +64,9 @@ void    destroy_mutex(t_data *data)
 	}
 }
 
-void    clean_up(t_data *data)
+void	clean_up(t_data *data)
 {
-        if(data->philo)
-                free_list(&data->philo);
-        destroy_mutex(data);
+	if (data->philo)
+		free_list(&data->philo);
+	destroy_mutex(data);
 }
