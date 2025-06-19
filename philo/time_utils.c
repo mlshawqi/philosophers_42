@@ -1,6 +1,6 @@
 #include "philo.h"
 
-size_t  get_current_time(void)
+size_t  get_current_time(t_philo *philo)
 {
         static struct timeval   start_time;
         static int              start;
@@ -8,12 +8,14 @@ size_t  get_current_time(void)
         long                    seconds;
         long                    microseconds;
 
+        pthread_mutex_lock(&philo->p_data->time_lock);
         if(!start)
         {
                 if (gettimeofday(&start_time, NULL) == -1)
 		        return (print_error("gettimeofday() error\n", NULL));
                 start = 1;
         }
+        pthread_mutex_unlock(&philo->p_data->time_lock);
         if (gettimeofday(&current_time, NULL) == -1)
 		        return (print_error("gettimeofday() error\n", NULL));
         seconds = current_time.tv_sec - start_time.tv_sec;
@@ -21,13 +23,14 @@ size_t  get_current_time(void)
         return ((seconds * 1000) + (microseconds / 1000));
 }
 
-
-int	ft_usleep(size_t wait_time)
+int	ft_usleep(t_philo *philo, size_t wait_time)
 {
         size_t	start_time;
 
-        start_time = get_current_time();
-        while ((get_current_time() - start_time) < wait_time)
+        if(detect_death(philo))
+                return (1);
+        start_time = get_current_time(philo);
+        while (!detect_death(philo) && ((get_current_time(philo) - start_time) < wait_time))
                 usleep(500);
         return (0);
 }

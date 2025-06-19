@@ -42,7 +42,7 @@ void    destroy_mutex(t_data *data)
         i = 0;
 	if(data->mutex_array)
 	{
-		while(i < data->number_of_philosophers)
+		while(i < data->nbr_philos)
 		{
 			pthread_mutex_destroy(&data->mutex_array[i]);
 			i++;

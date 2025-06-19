@@ -7,10 +7,10 @@ void	init_fork(t_data *data)
 
 	i = 0;
 	tmp = data->philo;
-	while(i < data->number_of_philosophers)
+	while(i < data->nbr_philos)
 	{
 		if(!tmp->prev)
-			tmp->left_fork = &data->mutex_array[data->number_of_philosophers - 1];
+			tmp->left_fork = &data->mutex_array[data->nbr_philos - 1];
 		tmp->right_fork = &data->mutex_array[i];
 		if(tmp->next)
 			tmp->next->left_fork = &data->mutex_array[i];
@@ -24,16 +24,16 @@ int    init_data(t_data *data)
         int     i;
 
 	i = 0;
-	data->mutex_array = malloc(data->number_of_philosophers * sizeof(pthread_mutex_t));
+	data->mutex_array = malloc(data->nbr_philos * sizeof(pthread_mutex_t));
         if(!data->mutex_array)
 		return (print_error("mutex_array", true));
-	while(i < data->number_of_philosophers)
+	while(i < data->nbr_philos)
 	{
 		pthread_mutex_init(&data->mutex_array[i], NULL);
 		i++;
 	}
 	i = 0;
-        while(i < data->number_of_philosophers)
+        while(i < data->nbr_philos)
         {
                 if(link_node(&data->philo, creat_node(data, i + 1)) == 1)
 			return (1);
@@ -48,12 +48,12 @@ int    ft_initialize(char **av, int ac, t_data *data)
         data->philo = NULL;
         data->mutex_array = NULL;
         data->time_to_die = (size_t)ft_atoi(av[2]);
-        data->time_to_eat = ft_atoi(av[3]);
-        data->time_to_sleep = ft_atoi(av[4]);
+        data->t_eat = ft_atoi(av[3]);
+        data->t_sleep = ft_atoi(av[4]);
         data->dead_flag = false;
         data->nb_to_eat = 0;
-        data->number_of_philosophers = ft_atoi(av[1]);
-        if(data->number_of_philosophers > 200 || data->number_of_philosophers <= 0)
+        data->nbr_philos = ft_atoi(av[1]);
+        if(data->nbr_philos > 200 || data->nbr_philos <= 0)
         {
                 write(2, "Error: '", 8);
                 write(2, av[1], ft_strlen(av[1]));

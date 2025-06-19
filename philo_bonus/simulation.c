@@ -3,7 +3,7 @@
 int    init_data_sem(t_data *data)
 {
         sem_unlink("/forks");
-        data->forks = sem_open("/forks", O_CREAT | O_EXCL, 0644, data->number_of_philosophers);
+        data->forks = sem_open("/forks", O_CREAT | O_EXCL, 0644, data->nbr_philos);
         if(data->forks == SEM_FAIL)
                 return (print_error("sem_open forks_lock failed", false));
         sem_unlink("/dead");

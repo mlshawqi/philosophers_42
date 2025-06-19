@@ -40,10 +40,10 @@ typedef struct  s_data{
         sem_t           *print_lock;
         char            **meals;
         char            **eats;
-        int             number_of_philosophers;
+        int             nbr_philos;
         size_t          time_to_die;
-        int             time_to_eat;
-        int             time_to_sleep;
+        int             t_eat;
+        int             t_sleep;
         int             nb_to_eat;
         bool             dead_flag;
 }       t_data;

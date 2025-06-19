@@ -20,7 +20,7 @@ void    philo_eat(t_philo *philo)
         philo->last_meal = get_current_time();
         philo->eat_count += 1;
         sem_post(philo->meal_lock);
-        ft_usleep(philo->p_data->time_to_eat);
+        ft_usleep(philo->p_data->t_eat);
         putdown_forks(philo);
 }
 
@@ -29,7 +29,7 @@ void    philo_sleep(t_philo *philo)
         if(detect_death(philo))
                 return ;
         print_state(philo, "is sleeping");
-        ft_usleep(philo->p_data->time_to_sleep);
+        ft_usleep(philo->p_data->t_sleep);
 }
 
 void    philo_think(t_philo *philo)
@@ -65,7 +65,7 @@ void    *philo_routine(void *arg)
         int     i = 0;
 
         philo->last_meal = get_current_time();
-        if(philo->p_data->number_of_philosophers == 1)
+        if(philo->p_data->nbr_philos == 1)
                 handle_one_philo(philo);
         else
         {
@@ -78,7 +78,7 @@ void    *philo_routine(void *arg)
                         if(i == 0 && philo->id % 2 == 0)
                         {
                                 printf("<<<< %d\n", philo->id);
-                                ft_usleep(philo->p_data->time_to_eat);
+                                ft_usleep(philo->p_data->t_eat);
                         }
                         philo_eat(philo);
                         philo_sleep(philo);

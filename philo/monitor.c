@@ -47,11 +47,11 @@ bool    simulation_stop(t_data *data, t_philo *tmp)
         meals = tmp->last_meal;
         is_eating = tmp->is_eating;
         pthread_mutex_unlock(&tmp->meal_lock);
-        if(!is_eating && ((get_current_time() - meals) > data->time_to_die))
+        if(!is_eating && ((get_current_time(tmp) - meals) > data->time_to_die))
         {
                 pthread_mutex_lock(&data->dead_lock);
                 pthread_mutex_lock(&data->print_mutex);
-                printf("%zu %d died\n", get_current_time(), tmp->id);
+                printf("%zu %d died\n", get_current_time(tmp), tmp->id);
                 pthread_mutex_unlock(&data->print_mutex);
                 data->dead_flag = true;
                 pthread_mutex_unlock(&data->dead_lock);

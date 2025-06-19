@@ -7,6 +7,7 @@ int     creat_threads(t_data *data)
         tmp = data->philo;
         pthread_mutex_init(&data->dead_lock, NULL); 
         pthread_mutex_init(&data->print_mutex, NULL);
+        pthread_mutex_init(&data->time_lock, NULL);
         while(tmp)
         {
                 pthread_mutex_init(&tmp->meal_lock, NULL);
