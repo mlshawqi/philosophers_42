@@ -1,4 +1,32 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils3.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: machaouk <marvin@42.fr>                    #+#  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025-06-19 21:24:50 by machaouk          #+#    #+#             */
+/*   Updated: 2025-06-19 21:24:50 by machaouk         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
+
+int	print_error(char *context, bool flag)
+{
+	if (flag)
+	{
+		write(2, "warning: failed to allocate ", 28);
+		write(2, context, ft_strlen(context));
+		write(2, "\n", 1);
+	}
+	else
+	{
+		write(2, context, ft_strlen(context));
+		write(2, "\n", 1);
+	}
+	return (1);
+}
 
 char	*ft_strdup(char *s)
 {

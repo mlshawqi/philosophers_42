@@ -1,186 +1,107 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo_routine.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: machaouk <marvin@42.fr>                    #+#  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025-06-19 21:14:54 by machaouk          #+#    #+#             */
+/*   Updated: 2025-06-19 21:14:54 by machaouk         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
-void    handle_one_philo(t_philo *philo)
+void	handle_one_philo(t_philo *philo)
 {
-        sem_wait(philo->p_data->forks);
-        print_state(philo , "has taken a fork");
-        ft_usleep(philo->p_data->time_to_die);
-        sem_wait(philo->p_data->print_lock);
-        printf("%zu %d died\n", get_current_time(), philo->id);
-        sem_post(philo->p_data->print_lock);
+	sem_wait(philo->p_data->forks);
+	print_state(philo, "has taken a fork");
+	sem_post(philo->p_data->forks);
+	ft_usleep(philo, (size_t)philo->p_data->time_to_die);
+	sem_wait(philo->p_data->print_lock);
+	printf("%zu %d died\n", get_current_time(philo), philo->id);
+	sem_post(philo->p_data->print_lock);
 }
 
-void    philo_eat(t_philo *philo)
+void	philo_eat(t_philo *philo)
 {
-        if(detect_death(philo))
-                return ;
-        pickup_forks(philo);
-        print_state(philo, "is eating");
-        sem_wait(philo->meal_lock);
-        philo->last_meal = get_current_time();
-        philo->eat_count += 1;
-        sem_post(philo->meal_lock);
-        ft_usleep(philo->p_data->t_eat);
-        putdown_forks(philo);
+	if (detect_death(philo))
+		return ;
+	pickup_forks(philo);
+	print_state(philo, "is eating");
+	sem_wait(philo->meal_lock);
+	philo->last_meal = get_current_time(philo);
+	philo->eat_count += 1;
+	philo->is_eating = true;
+	sem_post(philo->meal_lock);
+	ft_usleep(philo, (size_t)philo->p_data->t_eat);
+	putdown_forks(philo);
+	sem_wait(philo->meal_lock);
+	philo->is_eating = false;
+	sem_post(philo->meal_lock);
 }
 
-void    philo_sleep(t_philo *philo)
+void	philo_think_sleep(t_philo *philo, bool hint)
 {
-        if(detect_death(philo))
-                return ;
-        print_state(philo, "is sleeping");
-        ft_usleep(philo->p_data->t_sleep);
+	if (hint)
+	{
+		if (detect_death(philo))
+			return ;
+		print_state(philo, "is sleeping");
+		ft_usleep(philo, (size_t)philo->p_data->t_sleep);
+	}
+	else
+	{
+		print_state(philo, "is thinking");
+	}
 }
 
-void    philo_think(t_philo *philo)
+int	handle_monitor(t_philo *philo, bool create)
 {
-        print_state(philo, "is thinking");
+	if (create)
+	{
+		if (pthread_create(&philo->monitor, NULL, &monitor_routine, philo) != 0)
+		{
+			printf("Error creating monitor thread\n");
+			return (1);
+		}
+	}
+	else
+	{
+		if (pthread_join(philo->monitor, NULL) != 0)
+		{
+			printf("Error joing monitor thread\n");
+			return (1);
+		}
+	}
+	return (0);
 }
 
-
-int     handle_monitor(t_philo *philo, bool create)
+void	*philo_routine(void *arg)
 {
-        if(create)
-        {
-                if (pthread_create(&philo->monitor, NULL, &monitor_routine, philo) != 0)
-                {
-                        printf("Error creating monitor thread\n");
-                        return (1);
-                }
-        }
-        else
-        {
-                if (pthread_join(philo->monitor, NULL) != 0)
-                {
-                        printf("Error joing monitor thread\n");
-                        return (1);
-                }
-        }
-        return (0);
+	t_philo	*philo;
+	int		i;
+
+	philo = (t_philo *)arg;
+	i = 0;
+	sem_wait(philo->meal_lock);
+	philo->last_meal = get_current_time(philo);
+	sem_post(philo->meal_lock);
+	if (philo->p_data->nbr_philos == 1)
+		handle_one_philo(philo);
+	else
+	{
+		handle_monitor(philo, true);
+		while (!detect_death(philo))
+		{
+			philo_think_sleep(philo, false);
+			apply_initial_delay(philo, i, true);
+			philo_eat(philo);
+			philo_think_sleep(philo, true);
+			apply_initial_delay(philo, i, false);
+			i++;
+		}
+		handle_monitor(philo, false);
+	}
+	return (NULL);
 }
-
-void    *philo_routine(void *arg)
-{
-        t_philo *philo = (t_philo *)arg;
-        int     i = 0;
-
-        philo->last_meal = get_current_time();
-        if(philo->p_data->nbr_philos == 1)
-                handle_one_philo(philo);
-        else
-        {
-                handle_monitor(philo, true);
-                while(true)
-                {
-                        if(detect_death(philo))
-                                return (NULL);
-                        philo_think(philo);
-                        if(i == 0 && philo->id % 2 == 0)
-                        {
-                                printf("<<<< %d\n", philo->id);
-                                ft_usleep(philo->p_data->t_eat);
-                        }
-                        philo_eat(philo);
-                        philo_sleep(philo);
-                        i++;
-                }
-                handle_monitor(philo, false);
-        }
-        return (NULL);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// void    handle_one_philo(t_philo *philo)
-// {
-//         print_state(philo, "has taken a fork");
-// }
-
-// void    philo_eat(t_philo *philo)
-// {
-//         pickup_forks(philo);
-//         sem_wait(philo->meal_lock);
-//         philo->last_meal = get_current_time();
-//         sem_post(philo->meal_lock);
-//         print_state(philo, "is eating");
-//         increment_eat_count(philo);   
-//         ft_usleep(philo->p_data->time_to_eat);
-//         putdown_forks(philo);
-// }
-
-// void    philo_sleep(t_philo *philo)
-// {
-//         if(detect_death(philo))
-//                         return ;
-//         print_state(philo, "is sleeping");
-//         ft_usleep(philo->p_data->time_to_sleep);
-// }
-
-// void    philo_think(t_philo *philo)
-// {
-//         if(detect_death(philo))
-//                         return ;
-//         print_state(philo, "is thinking");
-// }
-
-
-// int     handle_monitor(t_philo *philo, bool create)
-// {
-//         if(create)
-//         {
-//                 if (pthread_create(&philo->monitor, NULL, &monitor_routine, philo) != 0)
-//                 {
-//                         printf("Error creating monitor thread\n");
-//                         return (1);
-//                 }
-//         }
-//         else
-//         {
-//                 if (pthread_join(philo->monitor, NULL) != 0)
-//                 {
-//                         printf("Error joing monitor thread\n");
-//                         return (1);
-//                 }
-//         }
-//         return (0);
-// }
-
-// void    *philo_routine(void *arg)
-// {
-//         t_philo *philo = (t_philo *)arg;
-
-//         philo->last_meal = get_current_time();
-//         if(philo->p_data->number_of_philosophers == 1)
-//                 handle_one_philo(philo);
-//         else
-//         {
-//                 handle_monitor(philo, true);
-//                 while(true)
-//                 {
-//                         philo_eat(philo);
-//                         philo_sleep(philo);
-//                         philo_think(philo);
-//                 }
-//                 handle_monitor(philo, false);
-//         }
-//         return (NULL);
-// }

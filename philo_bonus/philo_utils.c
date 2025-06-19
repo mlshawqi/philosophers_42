@@ -1,57 +1,54 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo_utils.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: machaouk <marvin@42.fr>                    #+#  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025-06-19 21:18:47 by machaouk          #+#    #+#             */
+/*   Updated: 2025-06-19 21:18:47 by machaouk         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
-void    print_state(t_philo *philo, char *state)
+void	apply_initial_delay(t_philo *philo, int i, bool hint)
 {
-        if(detect_death(philo))
-                        return ;
-        sem_wait(philo->p_data->print_lock);
-        if(!detect_death(philo))
-                printf("%zu %d %s\n", get_current_time(), philo->id, state);
-        sem_post(philo->p_data->print_lock);   
+	if (hint)
+	{
+		if (i == 0 && philo->p_data->nbr_philos % 2 != 0 && philo->id == 1)
+			ft_usleep(philo, (size_t)philo->p_data->t_eat);
+		if (i == 0 && (philo->id % 2 != 0))
+			ft_usleep(philo, (size_t)philo->p_data->t_eat);
+	}
+	else
+	{
+		if (philo->p_data->nbr_philos % 2 == 1
+			&& philo->p_data->t_eat >= philo->p_data->t_sleep)
+			ft_usleep(philo, 5);
+	}
 }
 
-// void    increment_eat_count(t_philo *philo)
-// {
-//         sem_wait(philo->meal_lock);
-//         philo->eat_count += 1;
-//         sem_post(philo->meal_lock);
-// }
-
-void    pickup_forks(t_philo *philo)
+void	print_state(t_philo *philo, char *state)
 {
-        // if(philo->id % 2 != 0)
-        // {
-                sem_wait(philo->p_data->forks);
-                print_state(philo , "has taken a fork");
-                sem_wait(philo->p_data->forks);
-                print_state(philo ,"has taken a fork");
-        // }
-        // else
-        // {
-        //         ft_usleep(philo->p_data->time_to_eat);
-        //         sem_wait(philo->p_data->forks);
-        //         print_state(philo ,"has taken a fork");
-        //         sem_wait(philo->p_data->forks);
-        //         print_state(philo , "has taken a fork");
-        // }
+	if (detect_death(philo))
+		return ;
+	sem_wait(philo->p_data->print_lock);
+	if (!detect_death(philo))
+		printf("%zu %d %s\n", get_current_time(philo), philo->id, state);
+	sem_post(philo->p_data->print_lock);
 }
 
-void    putdown_forks(t_philo *philo)
+void	pickup_forks(t_philo *philo)
 {
-        sem_post(philo->p_data->forks);
-        sem_post(philo->p_data->forks);
+	sem_wait(philo->p_data->forks);
+	print_state(philo, "has taken a fork");
+	sem_wait(philo->p_data->forks);
+	print_state(philo, "has taken a fork");
 }
 
-bool    finish_eating(t_philo *philo)
+void	putdown_forks(t_philo *philo)
 {
-        bool    ret;
-
-        ret = false;
-        if(philo->p_data->nb_to_eat <= 0)
-                return (false);
-        sem_wait(philo->eat_count_lock);
-        if (philo->eat_count >= philo->p_data->nb_to_eat)
-                ret = true;
-        sem_post(philo->eat_count_lock);  
-        return (ret);
+	sem_post(philo->p_data->forks);
+	sem_post(philo->p_data->forks);
 }

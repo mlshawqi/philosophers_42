@@ -1,20 +1,16 @@
-#include "philo.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   clean.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: machaouk <marvin@42.fr>                    #+#  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025-06-19 21:12:00 by machaouk          #+#    #+#             */
+/*   Updated: 2025-06-19 21:12:00 by machaouk         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-int	print_error(char *context, bool flag)
-{
-	if (flag)
-	{
-		write(2, "warning: failed to allocate ", 28);
-		write(2, context, ft_strlen(context));
-		write(2, "\n", 1);
-	}
-	else
-	{
-		write(2, context, ft_strlen(context));
-		write(2, "\n", 1);
-	}
-	return (1);
-}
+#include "philo.h"
 
 void	free_string_array(char **array)
 {
@@ -39,20 +35,29 @@ void	free_string_array(char **array)
 	}
 }
 
-void	free_list(t_philo **list)
+void	close_sem(sem_t **sem)
 {
-	t_philo *p;
+	if (sem && *sem != SEM_FAILED && *sem != NULL)
+	{
+		sem_close(*sem);
+		*sem = NULL;
+	}
+}
 
-	
+void	free_list(t_philo **list, bool hint)
+{
+	t_philo	*p;
+
 	if (list == NULL || *list == NULL)
 		return ;
 	while (*list != NULL)
 	{
 		p = (*list)->next;
-		sem_close((*list)->meal_lock);
-		sem_unlink((*list)->p_data->meals[(*list)->id -1]);
-		// sem_close((*list)->eat_count_lock);
-		// sem_unlink((*list)->p_data->eats[(*list)->id -1]);
+		if (hint)
+		{
+			close_sem(&(*list)->meal_lock);
+			sem_unlink((*list)->p_data->meals[(*list)->id - 1]);
+		}
 		free(*list);
 		*list = p;
 	}
@@ -60,23 +65,37 @@ void	free_list(t_philo **list)
 	*list = NULL;
 }
 
-void    destroy_semaphores(t_data *data)
+void	destroy_semaphores(t_data *data)
 {
-		sem_close(data->dead_lock);
-		sem_unlink("/dead");
-		sem_close(data->print_lock);
-		sem_unlink("/print");
-		sem_close(data->forks);
-		sem_unlink("/forks");
+	close_sem(&data->dead_lock);
+	sem_unlink("/dead");
+	close_sem(&data->print_lock);
+	sem_unlink("/print");
+	close_sem(&data->forks);
+	sem_unlink("/forks");
+	close_sem(&data->time_lock);
+	sem_unlink("/time");
 }
 
-void    clean_up(t_data *data)
+void	clean_up(t_data *data, bool hint)
 {
-        if(data->philo)
-                free_list(&data->philo);
-	destroy_semaphores(data);
-	if(data->meals)
-		free_string_array(data->meals);
-	if(data->eats)
-		free_string_array(data->eats);
+	if (hint)
+	{
+		if (data->philo)
+			free_list(&data->philo, true);
+		destroy_semaphores(data);
+		if (data->meals)
+			free_string_array(data->meals);
+		if (data->eats)
+			free_string_array(data->eats);
+	}
+	else
+	{
+		if (data->philo)
+			free_list(&data->philo, true);
+		if (data->meals)
+			free_string_array(data->meals);
+		if (data->eats)
+			free_string_array(data->eats);
+	}
 }
