@@ -104,6 +104,6 @@ void					free_string_array(char **array);
 void					ft_bzero(void *s, size_t n);
 void					kill_all_philos(t_philo *philo);
 void					stoop_simulation(t_data *data);
-void					apply_initial_delay(t_philo *philo, int i, bool hint);
+void					apply_delay(t_philo *philo, int i, bool hint);
 
 #endif

@@ -14,9 +14,12 @@
 
 void	print_state(t_philo *philo, char *state)
 {
-	if (detect_death(philo))
-		return ;
 	pthread_mutex_lock(&philo->p_data->print_mutex);
+	if (detect_death(philo))
+	{
+		pthread_mutex_unlock(&philo->p_data->print_mutex);
+		return ;
+	}
 	printf("%zu %d %s\n", get_current_time(philo), philo->id, state);
 	pthread_mutex_unlock(&philo->p_data->print_mutex);
 }

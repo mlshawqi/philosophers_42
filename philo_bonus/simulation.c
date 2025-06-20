@@ -71,9 +71,11 @@ int	wait_processes(t_data *data)
 {
 	t_philo	*tmp;
 	int		status;
+	int		i;
 
 	tmp = data->philo;
-	while (tmp)
+	i = 0;
+	while (i < tmp->p_data->nbr_philos)
 	{
 		waitpid(-1, &status, 0);
 		if (WIFEXITED(status) && (WEXITSTATUS(status) != 0))
@@ -81,7 +83,7 @@ int	wait_processes(t_data *data)
 			kill_all_philos(tmp);
 			return (0);
 		}
-		tmp = tmp->next;
+		i++;
 	}
 	return (0);
 }

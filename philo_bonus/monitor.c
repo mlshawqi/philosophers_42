@@ -26,16 +26,19 @@ bool	detect_death(t_philo *philo)
 
 bool	should_stop_eating(t_philo *philo, int eat_counter)
 {
-	bool	ret;
+	int		counter;
 
-	ret = false;
+	(void)eat_counter;
 	if (philo->p_data->nb_to_eat <= 0)
 		return (false);
-	if (eat_counter >= philo->p_data->nb_to_eat)
+	sem_wait(philo->meal_lock);
+	counter = philo->eat_count;
+	sem_post(philo->meal_lock);
+	if (counter >= philo->p_data->nb_to_eat)
 	{
-		exit(0);
+		return (true);
 	}
-	return (ret);
+	return (false);
 }
 
 bool	simulation_stop(t_philo *tmp)
@@ -51,8 +54,8 @@ bool	simulation_stop(t_philo *tmp)
 	is_eating = tmp->is_eating;
 	eat_counter = tmp->eat_count;
 	sem_post(tmp->meal_lock);
-	if (!is_eating)
-		should_stop_eating(tmp, eat_counter);
+	if (!is_eating && should_stop_eating(tmp, eat_counter))
+		return (true);
 	if (!is_eating && ((get_current_time(tmp)
 				- meals) > tmp->p_data->time_to_die))
 	{
@@ -61,6 +64,7 @@ bool	simulation_stop(t_philo *tmp)
 		sem_wait(tmp->p_data->print_lock);
 		printf("%zu %d died\n", get_current_time(tmp), tmp->id);
 		sem_post(tmp->p_data->print_lock);
+		exit(1);
 		return (true);
 	}
 	return (false);
@@ -75,7 +79,7 @@ void	*monitor_routine(void *arg)
 	{
 		if (simulation_stop(philo))
 		{
-			exit(1);
+			return (NULL);
 		}
 		usleep(100);
 	}

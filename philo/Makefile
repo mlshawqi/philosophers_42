@@ -4,7 +4,7 @@ SRCS =  main.c parsing.c utils.c simulation.c philo_utils.c init.c clean.c utils
 OBJS = $(SRCS:.c=.o)
 
 CC = cc
-CFLAGS = -Wall -Wextra -Werror #-g3 -fsanitize=thread
+CFLAGS = -Wall -Wextra -Werror
 NAME = philo
 
 all:$(NAME)

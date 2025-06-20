@@ -29,12 +29,12 @@ void	philo_eat(t_philo *philo)
 	philo->is_eating = true;
 	pthread_mutex_unlock(&philo->meal_lock);
 	print_state(philo, "is eating");
+	increment_eat_count(philo);
 	ft_usleep(philo, (size_t)philo->p_data->t_eat);
 	pthread_mutex_lock(&philo->meal_lock);
 	philo->is_eating = false;
 	pthread_mutex_unlock(&philo->meal_lock);
 	putdown_forks(philo);
-	increment_eat_count(philo);
 }
 
 void	philo_think_sleep(t_philo *philo, bool hint)
@@ -59,13 +59,13 @@ void	apply_initial_delay(t_philo *philo, int i, bool hint)
 		if (i == 0 && philo->p_data->nbr_philos % 2 != 0 && philo->id == 1)
 			ft_usleep(philo, (size_t)philo->p_data->t_eat);
 		if (i == 0 && (philo->id % 2 != 0))
-			ft_usleep(philo, 10);
+			ft_usleep(philo, (size_t)(philo->p_data->t_eat / 2));
 	}
 	else
 	{
 		if (philo->p_data->nbr_philos % 2 == 1
 			&& philo->p_data->t_eat >= philo->p_data->t_sleep)
-			ft_usleep(philo, (size_t)philo->p_data->t_eat);
+			ft_usleep(philo, 5);
 	}
 }
 

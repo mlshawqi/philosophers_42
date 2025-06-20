@@ -12,14 +12,14 @@
 
 #include "philo.h"
 
-void	apply_initial_delay(t_philo *philo, int i, bool hint)
+void	apply_delay(t_philo *philo, int i, bool hint)
 {
 	if (hint)
 	{
 		if (i == 0 && philo->p_data->nbr_philos % 2 != 0 && philo->id == 1)
 			ft_usleep(philo, (size_t)philo->p_data->t_eat);
 		if (i == 0 && (philo->id % 2 != 0))
-			ft_usleep(philo, (size_t)philo->p_data->t_eat);
+			ft_usleep(philo, (size_t)(philo->p_data->t_eat / 2));
 	}
 	else
 	{
@@ -41,6 +41,8 @@ void	print_state(t_philo *philo, char *state)
 
 void	pickup_forks(t_philo *philo)
 {
+	if (detect_death(philo))
+		return ;
 	sem_wait(philo->p_data->forks);
 	print_state(philo, "has taken a fork");
 	sem_wait(philo->p_data->forks);

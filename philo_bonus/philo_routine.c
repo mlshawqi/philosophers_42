@@ -95,10 +95,10 @@ void	*philo_routine(void *arg)
 		while (!detect_death(philo))
 		{
 			philo_think_sleep(philo, false);
-			apply_initial_delay(philo, i, true);
-			philo_eat(philo);
-			philo_think_sleep(philo, true);
-			apply_initial_delay(philo, i, false);
+			(apply_delay(philo, i, true), philo_eat(philo));
+			if (should_stop_eating(philo, 0))
+				break ;
+			(philo_think_sleep(philo, true), apply_delay(philo, i, false));
 			i++;
 		}
 		handle_monitor(philo, false);

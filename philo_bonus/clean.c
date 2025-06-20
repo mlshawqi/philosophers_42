@@ -54,14 +54,13 @@ void	free_list(t_philo **list, bool hint)
 	{
 		p = (*list)->next;
 		if (hint)
-		{
-			close_sem(&(*list)->meal_lock);
 			sem_unlink((*list)->p_data->meals[(*list)->id - 1]);
-		}
+		close_sem(&(*list)->meal_lock);
 		free(*list);
 		*list = p;
 	}
-	free(*list);
+	if (*list)
+		free(*list);
 	*list = NULL;
 }
 
@@ -91,8 +90,12 @@ void	clean_up(t_data *data, bool hint)
 	}
 	else
 	{
+		close_sem(&data->dead_lock);
+		close_sem(&data->print_lock);
+		close_sem(&data->forks);
+		close_sem(&data->time_lock);
 		if (data->philo)
-			free_list(&data->philo, true);
+			free_list(&data->philo, false);
 		if (data->meals)
 			free_string_array(data->meals);
 		if (data->eats)
